@@ -205,6 +205,20 @@
   .erd-tbl .ct { font-family: var(--mono); color: var(--text-dim); font-size: 11px; white-space: nowrap; }
   .erd-tbl .key { color: var(--gold); }
 
+  /* ───── Sandwich (코드 vs LLM) ───── */
+  .sandwich { display: flex; align-items: stretch; gap: 10px; flex-wrap: wrap; margin: 8px 0 24px; }
+  .sw-box { flex: 1 1 210px; border-radius: 14px; padding: 18px; border: 1px solid var(--line); }
+  .sw-box.code { background: var(--blue-soft); border-color: rgba(96,165,250,.4); }
+  .sw-box.llm { background: var(--gold-soft); border-color: rgba(251,191,36,.4); }
+  .sw-box h4 { font-size: 14.5px; font-weight: 800; margin-bottom: 10px; }
+  .sw-box.code h4 { color: var(--blue); }
+  .sw-box.llm h4 { color: var(--gold); }
+  .sw-box ul { list-style: none; font-size: 13px; color: var(--text); }
+  .sw-box li { padding: 4px 0; }
+  .sw-box .foot { margin-top: 8px; font-size: 12px; color: var(--text-dim); font-style: italic; }
+  .sw-arrow { display: flex; align-items: center; font-size: 20px; color: var(--text-dim); flex-shrink: 0; }
+  @media (max-width: 640px) { .sw-arrow { transform: rotate(90deg); margin: 0 auto; } }
+
   /* ───── Code ───── */
   pre {
     background: #0d1226; border: 1px solid var(--line); border-radius: 14px;
@@ -264,8 +278,8 @@
     <div class="badge-row">
       <span class="badge gold">팀 여름이었다</span>
       <span class="badge green">⑤ Strategist 담당</span>
-      <span class="badge">v1.6 · 2026-07-03</span>
-      <span class="badge">🕒 최종 수정 2026-07-03 16:45 KST</span>
+      <span class="badge">v1.7 · 2026-07-03</span>
+      <span class="badge">🕒 최종 수정 2026-07-03 16:51 KST</span>
     </div>
     <h1>Quantinue<br /><span class="grad">Strategist 파트 진행상황</span></h1>
     <p class="subtitle">
@@ -1035,6 +1049,114 @@ side(매수/매도/보류) + conviction(0~10) + rationale + key_risk</pre>
   </div>
 </section>
 
+<!-- ───────── 판단 구조: 코드 vs LLM ───────── -->
+<section>
+  <div class="wrap">
+    <div class="sec-label">Architecture · 코드 vs LLM</div>
+    <h2>누가 뭘 결정하나 — 코드 게이트 + LLM 판단 (샌드위치 구조)</h2>
+    <p class="sec-desc">확실한 규칙은 <b>코드가 강제</b>하고, 맥락 판단은 <b>LLM(GPT-4o)</b>이 해. LLM은 앞문·뒷문(코드 게이트) 사이에 <b>갇혀서</b> 판단하는 구조야 — GPT가 아무리 "매수!"라 우겨도 게이트를 못 넘으면 소용없음.</p>
+
+    <div class="sandwich">
+      <div class="sw-box code">
+        <h4>① 코드 게이트 (앞문)</h4>
+        <ul>
+          <li>🔒 hard_block → 즉시 보류</li>
+          <li>🔒 macro_veto → 즉시 보류</li>
+          <li>✅ consensus 계산 (0~4)</li>
+        </ul>
+        <div class="foot">여기서 걸리면 GPT까지 안 감</div>
+      </div>
+      <div class="sw-arrow">▶</div>
+      <div class="sw-box llm">
+        <h4>② LLM 판단 (GPT-4o)</h4>
+        <ul>
+          <li>신호 요약 + consensus + 과거 메모리 + 정책을 종합</li>
+          <li>→ <b>conviction (0~10)</b> + side(매수/보류)</li>
+        </ul>
+        <div class="foot">숫자로 못 잡는 맥락·신호 충돌을 판단</div>
+      </div>
+      <div class="sw-arrow">▶</div>
+      <div class="sw-box code">
+        <h4>③ 코드 게이트 (뒷문)</h4>
+        <ul>
+          <li>🔒 min_conviction 검증</li>
+          <li>매수인데 확신 &lt; 문턱 → 보류 강등</li>
+        </ul>
+        <div class="foot">GPT가 매수라 우겨도 여기서 최종 검문</div>
+      </div>
+    </div>
+
+    <h3 class="sub-h">확실하게 강제되는 규칙은 3개 (나머지는 힌트)</h3>
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr><th>#</th><th>규칙</th><th>누가</th><th>강제력</th><th>하는 일</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><b>hard_block</b></td><td>코드</td><td><span class="tag hot">🔒 강제</span></td><td>상폐·거래정지 → 즉시 보류 (GPT 안 감)</td></tr>
+          <tr><td>2</td><td><b>macro_veto</b></td><td>코드</td><td><span class="tag hot">🔒 강제</span></td><td>시장 태풍 → 즉시 보류 (GPT 안 감)</td></tr>
+          <tr><td>3</td><td>consensus 카운트</td><td>코드</td><td><span class="tag use">✅ 계산</span></td><td>매수 신호 몇 개인지 셈 (0~4)</td></tr>
+          <tr><td>—</td><td>"보류 권장"</td><td>코드→GPT</td><td><span class="tag ref">🟡 권고</span></td><td>consensus 미달이면 GPT에 힌트만 (강제 아님)</td></tr>
+          <tr><td>4</td><td><b>conviction 판단</b></td><td>GPT</td><td><span class="tag ref">🔵 판단</span></td><td>데이터 종합 → 0~10 점수 + 매수/보류</td></tr>
+          <tr><td>5</td><td><b>min_conviction</b></td><td>코드</td><td><span class="tag hot">🔒 강제</span></td><td>매수인데 확신 &lt; 문턱 → 보류 강등</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="why"><b>"보류 권장"은 강제가 아니야.</b> consensus가 미달이면 GPT에게 "보류하는 게 좋겠어"라고 <b>참고 의견</b>만 줌. GPT가 그걸 보고도 매수를 낼 수 있지만, 그래도 뒷문(min_conviction)에서 한 번 더 검문받음. 진짜 강제되는 건 🔒 표시 3개(hard_block·macro_veto·min_conviction)뿐.</div>
+
+    <!-- conviction 상세 -->
+    <div class="step-h"><span class="n">◆</span>conviction은 어떻게 나오나 — "공식 없음, GPT가 채점"</div>
+    <p class="sec-desc" style="margin-bottom:12px;"><code>conviction = consensus×2 + 보너스</code> 같은 <b>사칙연산 공식이 없어.</b> GPT-4o가 자료를 보고 <b>채점하듯</b> 0~10 점수를 매기는 거야. (면접관이 "음… 8점 정도?" 하는 것처럼)</p>
+
+    <div class="sub-h">GPT는 아무렇게나? → 아니, "채점 기준표"를 같이 줌</div>
+<pre><span class="c">[너의 임무] 아래 자료를 보고 매수 확신도를 0~10으로 매겨라.</span>
+
+<span class="c">[채점 기준]</span>
+· consensus 4개 전원 + 교차확인 + 위험 낮음   → 8~10점
+· consensus 3개 + 무난한 근거                → 6~8점
+· consensus 2개 or 위험 요소 있음            → 4~6점
+· consensus 낮거나 과거 실패 이력 있음        → 0~4점
+
+<span class="c">[이번 종목 자료]</span>
+· NVDA · consensus 4 · 교차확인됨
+· 위험: 인수 프리미엄 과다
+· 과거 메모리: 지난달 NVDA 매수 -3% 물림
+
+<span class="c"># → GPT: "consensus 4 + 교차확인이라 높은데, 과거에 물렸고</span>
+<span class="c">#         프리미엄 위험 있으니 만점은 아니고 → 8.5점"</span></pre>
+
+    <div class="sub-h">conviction을 올리는 / 내리는 요인</div>
+    <div class="grid c2">
+      <div class="card" style="border-color: rgba(74,222,128,.4)">
+        <h3 style="color:var(--accent)">⬆️ 올리는 요인</h3>
+        <p>consensus 높음(4개 전원) · 신호 강함(sentiment 0.9) · 교차확인 됨 · 과거 이 패턴에서 수익 · 위험 요소 적음</p>
+      </div>
+      <div class="card" style="border-color: rgba(248,113,113,.4)">
+        <h3 style="color:var(--red)">⬇️ 내리는 요인</h3>
+        <p>consensus 낮음(1~2개) · 신호 애매(0.65) · 교차확인 안 됨(루머 의심) · 과거 이 패턴에서 손실 · 위험 요소 많음</p>
+      </div>
+    </div>
+
+    <div class="sub-h">코드(나)가 하는 유일한 "계산"은 이것뿐</div>
+<pre>conviction = GPT가_매긴_점수          <span class="c"># 예: 8.35</span>
+<span class="k">if</span> cross_source_confirmed == <span class="n">1</span>:
+    conviction += <span class="n">0.15</span>                <span class="c"># 교차확인 보너스</span>
+<span class="c"># → 8.5</span></pre>
+    <div class="why" style="border-left-color: var(--blue); background: var(--blue-soft);"><b style="color:var(--blue)">왜 공식 대신 GPT?</b> 숫자 규칙만으론 "신호끼리 충돌"(공시는 호재인데 뉴스는 이미 반영됐다더라)이나 "맥락"을 못 잡음. 이건 사람 같은 판단이 필요해서 GPT에 맡김. 대신 명확한 규칙(🔒 게이트 3개)은 코드가 강제해서 GPT가 폭주 못 하게 울타리를 침.</div>
+
+    <div style="height:8px"></div>
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr><th>구분</th><th>누가</th><th>방식</th></tr></thead>
+        <tbody>
+          <tr><td><b>딱딱한 규칙</b> (차단·거부권·문턱)</td><td>코드(나)</td><td>정해진 숫자 비교 (결정론적)</td></tr>
+          <tr><td><b>conviction 점수</b></td><td>GPT-4o</td><td>채점 기준 보고 종합 판단 (감각적)</td></tr>
+          <tr><td><b>+0.15 보너스</b></td><td>코드(나)</td><td>교차확인 시 가산</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="pipe-note" style="margin-top:12px;">📌 스케일 주의 — 신호 점수(sentiment·grade 등)는 <b>0~1</b>(예: 0.8), conviction과 문턱은 <b>0~10</b>(예: 8.5 / 문턱 8.0·5.0). 서로 다른 스케일!</p>
+  </div>
+</section>
+
 <!-- ───────── Critic payload ───────── -->
 <section>
   <div class="wrap">
@@ -1163,8 +1285,8 @@ side(매수/매도/보류) + conviction(0~10) + rationale + key_risk</pre>
 
 <footer>
   <div class="wrap">
-    <b>Quantinue — Strategist</b> · 작성 이은미 · v1.6 · 최종 수정 2026-07-03 16:45 KST<br />
-    <span style="opacity:.7">변경 이력 — v1.0 최초 작성 · v1.1 신호 JSON 예시 + Critic payload 상세 · v1.2 요청 스펙(인터페이스 계약) 추가 + 수정시간 표기 · v1.3 테이블명 tb_ 접두사 + category→sector · v1.4 처리 로직 상세(기준+이유+Python) 추가 · v1.5 내 쪽 ERD(테이블 6개 + 관계) 추가 · v1.6 tb_strategist_signals 컬럼 사전 + 데이터타입 설명 추가</span><br />
+    <b>Quantinue — Strategist</b> · 작성 이은미 · v1.7 · 최종 수정 2026-07-03 16:51 KST<br />
+    <span style="opacity:.7">변경 이력 — v1.0 최초 작성 · v1.1 신호 JSON 예시 + Critic payload 상세 · v1.2 요청 스펙(인터페이스 계약) 추가 + 수정시간 표기 · v1.3 테이블명 tb_ 접두사 + category→sector · v1.4 처리 로직 상세(기준+이유+Python) 추가 · v1.5 내 쪽 ERD(테이블 6개 + 관계) 추가 · v1.6 tb_strategist_signals 컬럼 사전 + 데이터타입 설명 추가 · v1.7 판단 구조(코드 게이트+LLM 샌드위치) + conviction 채점 방식 설명 추가</span><br />
     팀 여름이었다 · 문의는 은미에게 직접 or 팀 채널로!
   </div>
 </footer>
