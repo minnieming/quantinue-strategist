@@ -264,8 +264,8 @@
     <div class="badge-row">
       <span class="badge gold">팀 여름이었다</span>
       <span class="badge green">⑤ Strategist 담당</span>
-      <span class="badge">v1.5 · 2026-07-03</span>
-      <span class="badge">🕒 최종 수정 2026-07-03 16:42 KST</span>
+      <span class="badge">v1.6 · 2026-07-03</span>
+      <span class="badge">🕒 최종 수정 2026-07-03 16:45 KST</span>
     </div>
     <h1>Quantinue<br /><span class="grad">Strategist 파트 진행상황</span></h1>
     <p class="subtitle">
@@ -725,6 +725,52 @@ cross_source_confirmed = 1  →  확신 <span class="s">+0.15</span> 힌트</pre
       </table>
     </div>
     <p class="pipe-note" style="margin-top:12px;">📌 입력 테이블에는 다른 컬럼도 더 있지만, <b>여기엔 내가 실제로 SELECT하는 컬럼만</b> 그렸어 (Pull 방식 = 필요한 것만 읽음). ❌ 필드는 위 "요청 스펙" 섹션 참고. 컬럼 타입은 PostgreSQL 기준 제안값이라 팀 합의로 조정 가능.</p>
+
+    <div style="height:22px"></div>
+    <h3 class="sub-h">⭐ tb_strategist_signals — 컬럼별 내용 (내 결과 테이블)</h3>
+    <p class="sec-desc" style="margin-bottom:12px;">이 테이블 한 행 = <b>종목 하나에 대한 내 최종 판단 결과</b>. 각 컬럼에 뭐가 들어가는지 정리했어.</p>
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr><th>컬럼</th><th>타입</th><th>들어가는 내용</th><th>예시</th></tr></thead>
+        <tbody>
+          <tr><td><code>id</code></td><td class="dim">BIGSERIAL</td><td>행 고유번호 (저장할 때마다 자동 1씩 증가)</td><td class="dim">1, 2, 3…</td></tr>
+          <tr><td><code>cycle_id</code></td><td class="dim">BIGINT</td><td>어느 판단 사이클인지 (08:30 실행 묶음). 원본 신호 연결 열쇠</td><td class="dim">123</td></tr>
+          <tr><td><code>ticker</code></td><td class="dim">VARCHAR</td><td>종목 코드</td><td class="dim">"NVDA"</td></tr>
+          <tr><td><code>inv_type</code></td><td class="dim">VARCHAR</td><td>투자유형</td><td class="dim">"안정형"</td></tr>
+          <tr><td><code>side</code></td><td class="dim">VARCHAR</td><td>최종 결정</td><td class="dim">"매수"/"매도"/"보류"</td></tr>
+          <tr><td><code>conviction</code></td><td class="dim">NUMERIC(3,1)</td><td>확신 점수 (0~10, 소수 1자리)</td><td class="dim">8.5</td></tr>
+          <tr><td><code>signal_consensus</code></td><td class="dim">SMALLINT</td><td>매수 방향 신호 개수 (0~4)</td><td class="dim">4</td></tr>
+          <tr><td><code>summary</code></td><td class="dim">TEXT</td><td>한 줄 요약</td><td class="dim">"4개 신호 전원 매수 방향"</td></tr>
+          <tr><td><code>bull_case</code></td><td class="dim">TEXT</td><td>매수 근거 상세</td><td class="dim">"①인수 ②실적 ③반등 ④risk-on"</td></tr>
+          <tr><td><code>key_risk</code></td><td class="dim">TEXT</td><td>내가 인정한 핵심 위험</td><td class="dim">"인수 프리미엄 과다"</td></tr>
+          <tr><td><code>risk_rebuttal</code></td><td class="dim">TEXT</td><td>그 위험에 대한 반박/방어</td><td class="dim">"교차확인+hard_block 없음"</td></tr>
+          <tr><td><code>counter_scenarios</code></td><td class="dim">JSONB</td><td>틀렸을 때 대응책 (목록/배열)</td><td class="dim">["무산 시 -5% 손절"]</td></tr>
+          <tr><td><code>evidence</code></td><td class="dim">JSONB</td><td>숫자 증거 (묶음/객체)</td><td class="dim">{"cross_source_confirmed":1}</td></tr>
+          <tr><td><code>sizing_hint</code></td><td class="dim">JSONB</td><td>PM에게 주는 크기 제안 (묶음)</td><td class="dim">{"suggested_weight":0.03}</td></tr>
+          <tr><td><code>persona_notes</code></td><td class="dim">TEXT · null</td><td>투자 레전드 관점 (MVP2, 지금은 비어있음)</td><td class="dim">null</td></tr>
+          <tr><td><code>created_at</code></td><td class="dim">TIMESTAMPTZ</td><td>저장된 시각 (타임존 포함)</td><td class="dim">2026-07-03 08:30</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="height:14px"></div>
+    <h3 class="sub-h">📖 데이터 타입 왕초보 사전</h3>
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr><th>타입</th><th>뜻 (쉽게)</th></tr></thead>
+        <tbody>
+          <tr><td><code>BIGSERIAL</code></td><td>자동으로 1씩 늘어나는 큰 정수 — 행에 자동으로 번호를 매겨줌</td></tr>
+          <tr><td><code>BIGINT</code></td><td>큰 정수 (아주 큰 숫자까지 저장)</td></tr>
+          <tr><td><code>VARCHAR</code></td><td>짧은 글자 (가변 길이 문자열) — 이름·코드 같은 것</td></tr>
+          <tr><td><code>NUMERIC(3,1)</code></td><td>소수 숫자 — 소수점 1자리까지 (예: 8.5). 정확한 수치용</td></tr>
+          <tr><td><code>SMALLINT</code></td><td>작은 정수 (0~4처럼 범위 작은 숫자)</td></tr>
+          <tr><td><code>TEXT</code></td><td>긴 글 (문장·설명 통째로)</td></tr>
+          <tr><td><code>JSONB</code></td><td>JSON을 통째로 저장 — 목록/묶음처럼 <b>구조가 있는 데이터</b>를 한 칸에</td></tr>
+          <tr><td><code>TIMESTAMPTZ</code></td><td>타임존(시간대) 포함 날짜+시각 — "언제 저장됐나"</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="why"><b>왜 JSONB를 쓰나?</b> <code>counter_scenarios</code>(목록), <code>evidence</code>·<code>sizing_hint</code>(여러 값 묶음)처럼 <b>한 칸에 여러 개/구조</b>가 들어가는 건 문자열로 쪼개지 말고 JSON 덩어리째 저장하는 게 깔끔하고, 나중에 꺼내 쓰기도 편해서.</div>
   </div>
 </section>
 
@@ -1117,8 +1163,8 @@ side(매수/매도/보류) + conviction(0~10) + rationale + key_risk</pre>
 
 <footer>
   <div class="wrap">
-    <b>Quantinue — Strategist</b> · 작성 이은미 · v1.5 · 최종 수정 2026-07-03 16:42 KST<br />
-    <span style="opacity:.7">변경 이력 — v1.0 최초 작성 · v1.1 신호 JSON 예시 + Critic payload 상세 · v1.2 요청 스펙(인터페이스 계약) 추가 + 수정시간 표기 · v1.3 테이블명 tb_ 접두사 + category→sector · v1.4 처리 로직 상세(기준+이유+Python) 추가 · v1.5 내 쪽 ERD(테이블 6개 + 관계) 추가</span><br />
+    <b>Quantinue — Strategist</b> · 작성 이은미 · v1.6 · 최종 수정 2026-07-03 16:45 KST<br />
+    <span style="opacity:.7">변경 이력 — v1.0 최초 작성 · v1.1 신호 JSON 예시 + Critic payload 상세 · v1.2 요청 스펙(인터페이스 계약) 추가 + 수정시간 표기 · v1.3 테이블명 tb_ 접두사 + category→sector · v1.4 처리 로직 상세(기준+이유+Python) 추가 · v1.5 내 쪽 ERD(테이블 6개 + 관계) 추가 · v1.6 tb_strategist_signals 컬럼 사전 + 데이터타입 설명 추가</span><br />
     팀 여름이었다 · 문의는 은미에게 직접 or 팀 채널로!
   </div>
 </footer>
