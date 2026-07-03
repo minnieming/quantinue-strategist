@@ -219,7 +219,8 @@
     <div class="badge-row">
       <span class="badge gold">팀 여름이었다</span>
       <span class="badge green">⑤ Strategist 담당</span>
-      <span class="badge">v1.1 · 2026-07-03</span>
+      <span class="badge">v1.2 · 2026-07-03</span>
+      <span class="badge">🕒 최종 수정 2026-07-03 16:15 KST</span>
     </div>
     <h1>Quantinue<br /><span class="grad">Strategist 파트 진행상황</span></h1>
     <p class="subtitle">
@@ -457,6 +458,87 @@ cross_source_confirmed = 1  →  확신 <span class="s">+0.15</span> 힌트</pre
   </div>
 </section>
 
+<!-- ───────── 요청 스펙 (인터페이스 계약) ───────── -->
+<section>
+  <div class="wrap">
+    <div class="sec-label">Request Spec · 인터페이스 계약</div>
+    <h2>내가 요청하는 것 — 필요한 필드만 (다이어트 JSON)</h2>
+    <p class="sec-desc">
+      위 예시는 "전체 메뉴"고, <b>이건 내가 실제로 주문하는 것만</b> 추린 최소 스펙이야.
+      우리 구조는 <b>Pull 방식</b> — 각 팀이 DB에 저장해두면, 나는 <code>SELECT</code>로 아래 필드만 읽어옴.
+      각 팀은 이 표를 보고 "이 필드만 채워주면 된다"는 걸 알 수 있어. (= 인터페이스 계약)
+    </p>
+
+    <div class="card" style="border-color: rgba(96,165,250,.4); margin-bottom:18px;">
+      <h3 style="color:var(--blue)">💡 Pull 방식이란?</h3>
+      <p>택배(Push)처럼 상대가 나한테 <b>보내주는</b> 게 아니라, 내가 우편함(DB)에서 <b>필요한 것만 꺼내오는</b> 방식. 그래서 각 팀은 "저장"만, 필요한 필드 선택은 "내가" 함. ❌ 표시 필드는 저장해도 내가 안 읽으니 안 만들어도 돼.</p>
+    </div>
+
+    <div class="grid c2">
+      <div>
+        <h3 style="font-size:16px; font-weight:800; margin-bottom:8px;">① 공시 — 요청 필드</h3>
+<pre>{
+  <span class="k">"ticker"</span>: <span class="s">"NVDA"</span>,          <span class="c">// 공통</span>
+  <span class="k">"as_of"</span>: <span class="s">"2026-07-02"</span>,     <span class="c">// 공통</span>
+  <span class="k">"hard_block"</span>: <span class="n">0</span>,           <span class="c">// ✅ 즉시보류 여부</span>
+  <span class="k">"sentiment_score"</span>: <span class="n">0.9</span>,   <span class="c">// ✅ 호재/악재</span>
+  <span class="k">"importance"</span>: <span class="n">0.8</span>,        <span class="c">// ✅ 사건 크기</span>
+  <span class="k">"event_type"</span>: <span class="s">"ma"</span>,        <span class="c">// 📄 GPT 참고</span>
+  <span class="k">"reason"</span>: <span class="s">"대형 인수 발표"</span>   <span class="c">// 📄 GPT 참고</span>
+}</pre>
+      </div>
+      <div>
+        <h3 style="font-size:16px; font-weight:800; margin-bottom:8px;">② 뉴스 — 요청 필드</h3>
+<pre>{
+  <span class="k">"ticker"</span>: <span class="s">"NVDA"</span>,               <span class="c">// 공통</span>
+  <span class="k">"as_of"</span>: <span class="s">"2026-07-02"</span>,          <span class="c">// 공통</span>
+  <span class="k">"hard_block"</span>: <span class="n">0</span>,                <span class="c">// ✅ 즉시보류</span>
+  <span class="k">"sentiment_score"</span>: <span class="n">0.84</span>,       <span class="c">// ✅ 호재/악재</span>
+  <span class="k">"grade_score"</span>: <span class="n">0.95</span>,           <span class="c">// ✅ 출처 등급</span>
+  <span class="k">"confirmed_score"</span>: <span class="n">0.67</span>,       <span class="c">// ✅ 확정 비율</span>
+  <span class="k">"cross_source_confirmed"</span>: <span class="n">1</span>,    <span class="c">// ✅ 교차확인</span>
+  <span class="k">"top_evidence"</span>: [<span class="s">"reuters: ..."</span>], <span class="c">// 📄 GPT 참고</span>
+  <span class="k">"reason"</span>: <span class="s">"실적 서프라이즈"</span>       <span class="c">// 📄 GPT 참고</span>
+}</pre>
+      </div>
+      <div>
+        <h3 style="font-size:16px; font-weight:800; margin-bottom:8px;">③ 기술 — 요청 필드</h3>
+<pre>{
+  <span class="k">"ticker"</span>: <span class="s">"NVDA"</span>,        <span class="c">// 공통</span>
+  <span class="k">"as_of"</span>: <span class="s">"2026-07-02"</span>,   <span class="c">// 공통</span>
+  <span class="k">"trend"</span>: <span class="s">"상승"</span>,          <span class="c">// ✅ 오름세 여부</span>
+  <span class="k">"ml_prob_up"</span>: <span class="n">0.73</span>,     <span class="c">// ✅ AI 상승확률</span>
+  <span class="k">"rsi"</span>: <span class="n">34.0</span>,            <span class="c">// 📄 GPT 참고</span>
+  <span class="k">"macd"</span>: <span class="s">"골든크로스"</span>     <span class="c">// 📄 GPT 참고</span>
+}</pre>
+      </div>
+      <div>
+        <h3 style="font-size:16px; font-weight:800; margin-bottom:8px;">④ 매크로 — 요청 필드 <span style="font-weight:500; color:var(--text-dim); font-size:13px;">(ticker 없음)</span></h3>
+<pre>{
+  <span class="k">"as_of"</span>: <span class="s">"2026-07-02"</span>,   <span class="c">// 공통 (시장 전체라 ticker 없음)</span>
+  <span class="k">"regime"</span>: <span class="s">"risk-on"</span>,    <span class="c">// ✅ 시장 날씨</span>
+  <span class="k">"risk_score"</span>: <span class="n">3</span>,        <span class="c">// ✅ 위험도</span>
+  <span class="k">"reason"</span>: <span class="s">"나스닥 상승, VIX 16 안정"</span> <span class="c">// 📄 GPT 참고</span>
+}</pre>
+      </div>
+    </div>
+
+    <div style="height:18px"></div>
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr><th>신호</th><th>✅ 필수 (판단에 씀)</th><th>📄 선택 (GPT 참고)</th><th>❌ 안 받음</th></tr></thead>
+        <tbody>
+          <tr><td><b>공시</b></td><td>hard_block · sentiment_score · importance</td><td class="dim">event_type · reason</td><td class="dim">confirmed_score · confidence · ref · sentiment 라벨</td></tr>
+          <tr><td><b>뉴스</b></td><td>hard_block · sentiment_score · grade_score · confirmed_score · cross_source_confirmed</td><td class="dim">top_evidence · reason</td><td class="dim">peak_importance · source_trust · confidence</td></tr>
+          <tr><td><b>기술</b></td><td>trend · ml_prob_up</td><td class="dim">rsi · macd</td><td class="dim">—</td></tr>
+          <tr><td><b>매크로</b></td><td>regime · risk_score</td><td class="dim">reason</td><td class="dim">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="pipe-note" style="margin-top:12px;">📌 공통 필드 <code>ticker</code> · <code>as_of</code>는 "어느 종목·언제"라 모든 신호에 필수 (매크로만 ticker 제외 — 시장 전체라서).</p>
+  </div>
+</section>
+
 <!-- ───────── POLICY ───────── -->
 <section>
   <div class="wrap">
@@ -642,7 +724,8 @@ cross_source_confirmed = 1  →  확신 <span class="s">+0.15</span> 힌트</pre
 
 <footer>
   <div class="wrap">
-    <b>Quantinue — Strategist</b> · 작성 이은미 · v1.1 · 2026-07-03 <span style="opacity:.7">(v1.0 최초 작성 → v1.1 신호 JSON 예시 + Critic payload 상세 추가)</span><br />
+    <b>Quantinue — Strategist</b> · 작성 이은미 · v1.2 · 최종 수정 2026-07-03 16:15 KST<br />
+    <span style="opacity:.7">변경 이력 — v1.0 최초 작성 · v1.1 신호 JSON 예시 + Critic payload 상세 · v1.2 요청 스펙(인터페이스 계약) 추가 + 수정시간 표기</span><br />
     팀 여름이었다 · 문의는 은미에게 직접 or 팀 채널로!
   </div>
 </footer>
