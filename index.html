@@ -179,6 +179,32 @@
   }
   .sub-h { font-size: 15px; font-weight: 700; margin: 16px 0 8px; color: var(--text); }
 
+  /* ───── ERD ───── */
+  .erd-flow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+  .erd-flow-box {
+    flex: 1 1 160px; text-align: center; padding: 14px 12px;
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    font-size: 13.5px; font-weight: 700; color: var(--text);
+  }
+  .erd-flow-box small { display: block; font-weight: 500; color: var(--text-dim); font-size: 11.5px; margin-top: 3px; }
+  .erd-flow-box.mine { background: var(--accent-soft); border-color: rgba(74,222,128,.5); color: var(--accent); }
+  .erd-arrow { font-size: 18px; color: var(--text-dim); flex-shrink: 0; }
+  .erd-legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12.5px; color: var(--text-dim); margin-bottom: 16px; }
+  .erd-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(255px, 1fr)); }
+  .erd-tbl { background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .erd-tbl.mine { border-color: rgba(74,222,128,.5); box-shadow: 0 0 20px rgba(74,222,128,.1); }
+  .erd-tbl .th { padding: 10px 14px; background: var(--bg-soft); border-bottom: 1px solid var(--line); }
+  .erd-tbl.mine .th { background: var(--accent-soft); }
+  .erd-tbl .tname { font-family: var(--mono); font-weight: 700; font-size: 13.5px; color: var(--text); }
+  .erd-tbl.mine .tname { color: var(--accent); }
+  .erd-tbl .owner { display: block; font-size: 11px; font-weight: 600; color: var(--text-dim); margin-top: 3px; }
+  .erd-tbl ul { list-style: none; }
+  .erd-tbl li { display: flex; justify-content: space-between; gap: 8px; padding: 6px 14px; font-size: 12px; border-bottom: 1px solid var(--line); }
+  .erd-tbl li:last-child { border-bottom: none; }
+  .erd-tbl .cn { font-family: var(--mono); color: var(--text); }
+  .erd-tbl .ct { font-family: var(--mono); color: var(--text-dim); font-size: 11px; white-space: nowrap; }
+  .erd-tbl .key { color: var(--gold); }
+
   /* ───── Code ───── */
   pre {
     background: #0d1226; border: 1px solid var(--line); border-radius: 14px;
@@ -238,8 +264,8 @@
     <div class="badge-row">
       <span class="badge gold">팀 여름이었다</span>
       <span class="badge green">⑤ Strategist 담당</span>
-      <span class="badge">v1.4 · 2026-07-03</span>
-      <span class="badge">🕒 최종 수정 2026-07-03 16:38 KST</span>
+      <span class="badge">v1.5 · 2026-07-03</span>
+      <span class="badge">🕒 최종 수정 2026-07-03 16:42 KST</span>
     </div>
     <h1>Quantinue<br /><span class="grad">Strategist 파트 진행상황</span></h1>
     <p class="subtitle">
@@ -555,6 +581,150 @@ cross_source_confirmed = 1  →  확신 <span class="s">+0.15</span> 힌트</pre
       </table>
     </div>
     <p class="pipe-note" style="margin-top:12px;">📌 공통 필드 <code>ticker</code> · <code>as_of</code>는 "어느 종목·언제"라 모든 신호에 필수 (매크로만 ticker 제외 — 시장 전체라서).</p>
+  </div>
+</section>
+
+<!-- ───────── ERD ───────── -->
+<section>
+  <div class="wrap">
+    <div class="sec-label">ERD · 내가 다루는 테이블</div>
+    <h2>내 쪽 ERD — 읽는 테이블 & 쓰는 테이블</h2>
+    <p class="sec-desc">
+      <b>ERD</b> = Entity Relationship Diagram(개체 관계도) — 어떤 테이블이 있고 각 테이블에 무슨 컬럼이 들어가는지, 서로 어떻게 연결되는지 보여주는 그림.
+      내 쪽은 <b>입력 5개 테이블에서 읽어(SELECT) → 판단 → 내 결과 1개 테이블에 씀(INSERT)</b>.
+    </p>
+
+    <div class="erd-flow">
+      <div class="erd-flow-box">입력 5개 테이블<small>각 팀이 저장 · 내가 읽기(SELECT)</small></div>
+      <div class="erd-arrow">▶</div>
+      <div class="erd-flow-box mine">⑤ Strategist (나)<small>판단</small></div>
+      <div class="erd-arrow">▶</div>
+      <div class="erd-flow-box">tb_strategist_signals<small>내 결과 쓰기(INSERT)</small></div>
+    </div>
+
+    <div class="erd-legend">
+      <span><b class="key" style="color:var(--gold)">🔑</b> PK = Primary Key(기본키, 행 구분)</span>
+      <span><b style="color:var(--blue)">🔗</b> FK = Foreign Key(외래키, 다른 테이블 참조)</span>
+      <span><b style="color:var(--accent)">✅</b> 내가 판단에 씀</span>
+      <span><b style="color:var(--blue)">📄</b> GPT 참고</span>
+    </div>
+
+    <div class="erd-grid">
+      <!-- 공시 -->
+      <div class="erd-tbl">
+        <div class="th"><span class="tname">tb_disclosure_signals</span><span class="owner">공시 · 정보분석팀 소유 (내가 읽기)</span></div>
+        <ul>
+          <li><span class="cn"><span class="key">🔑</span> ticker</span><span class="ct">VARCHAR</span></li>
+          <li><span class="cn"><span class="key">🔑🔗</span> cycle_id</span><span class="ct">BIGINT</span></li>
+          <li><span class="cn">as_of</span><span class="ct">DATE</span></li>
+          <li><span class="cn">has_signal</span><span class="ct">SMALLINT</span></li>
+          <li><span class="cn">hard_block ✅</span><span class="ct">SMALLINT</span></li>
+          <li><span class="cn">sentiment_score ✅</span><span class="ct">NUMERIC</span></li>
+          <li><span class="cn">importance ✅</span><span class="ct">NUMERIC</span></li>
+          <li><span class="cn">event_type 📄</span><span class="ct">VARCHAR</span></li>
+          <li><span class="cn">reason 📄</span><span class="ct">TEXT</span></li>
+        </ul>
+      </div>
+
+      <!-- 뉴스 -->
+      <div class="erd-tbl">
+        <div class="th"><span class="tname">tb_news_signals</span><span class="owner">뉴스 · 정보분석팀 소유 (내가 읽기)</span></div>
+        <ul>
+          <li><span class="cn"><span class="key">🔑</span> ticker</span><span class="ct">VARCHAR</span></li>
+          <li><span class="cn"><span class="key">🔑🔗</span> cycle_id</span><span class="ct">BIGINT</span></li>
+          <li><span class="cn">as_of</span><span class="ct">DATE</span></li>
+          <li><span class="cn">has_signal</span><span class="ct">SMALLINT</span></li>
+          <li><span class="cn">hard_block ✅</span><span class="ct">SMALLINT</span></li>
+          <li><span class="cn">sentiment_score ✅</span><span class="ct">NUMERIC</span></li>
+          <li><span class="cn">grade_score ✅</span><span class="ct">NUMERIC</span></li>
+          <li><span class="cn">confirmed_score ✅</span><span class="ct">NUMERIC</span></li>
+          <li><span class="cn">cross_source_confirmed ✅</span><span class="ct">SMALLINT</span></li>
+          <li><span class="cn">top_evidence 📄</span><span class="ct">JSONB</span></li>
+          <li><span class="cn">reason 📄</span><span class="ct">TEXT</span></li>
+        </ul>
+      </div>
+
+      <!-- 기술 -->
+      <div class="erd-tbl">
+        <div class="th"><span class="tname">tb_technical_signals</span><span class="owner">기술 · 기술팀 소유 (내가 읽기)</span></div>
+        <ul>
+          <li><span class="cn"><span class="key">🔑</span> ticker</span><span class="ct">VARCHAR</span></li>
+          <li><span class="cn"><span class="key">🔑🔗</span> cycle_id</span><span class="ct">BIGINT</span></li>
+          <li><span class="cn">as_of</span><span class="ct">DATE</span></li>
+          <li><span class="cn">trend ✅</span><span class="ct">VARCHAR</span></li>
+          <li><span class="cn">ml_prob_up ✅</span><span class="ct">NUMERIC</span></li>
+          <li><span class="cn">rsi 📄</span><span class="ct">NUMERIC</span></li>
+          <li><span class="cn">macd 📄</span><span class="ct">VARCHAR</span></li>
+        </ul>
+      </div>
+
+      <!-- 매크로 -->
+      <div class="erd-tbl">
+        <div class="th"><span class="tname">tb_macro_signals</span><span class="owner">매크로 · 매크로팀 소유 (내가 읽기)</span></div>
+        <ul>
+          <li><span class="cn"><span class="key">🔑🔗</span> cycle_id</span><span class="ct">BIGINT</span></li>
+          <li><span class="cn">as_of</span><span class="ct">DATE</span></li>
+          <li><span class="cn">regime ✅</span><span class="ct">VARCHAR</span></li>
+          <li><span class="cn">risk_score ✅</span><span class="ct">NUMERIC</span></li>
+          <li><span class="cn">reason 📄</span><span class="ct">TEXT</span></li>
+          <li><span class="cn" style="color:var(--text-dim)">※ ticker 없음 (시장 전체)</span><span class="ct"></span></li>
+        </ul>
+      </div>
+
+      <!-- 메모리 -->
+      <div class="erd-tbl">
+        <div class="th"><span class="tname">tb_memory_entries</span><span class="owner">과거기록 · Reviewer(⑧) 저장 (내가 읽기)</span></div>
+        <ul>
+          <li><span class="cn"><span class="key">🔑</span> id</span><span class="ct">BIGSERIAL</span></li>
+          <li><span class="cn"><span class="key">🔗</span> ticker</span><span class="ct">VARCHAR</span></li>
+          <li><span class="cn"><span class="key">🔗</span> cycle_id</span><span class="ct">BIGINT</span></li>
+          <li><span class="cn">side</span><span class="ct">VARCHAR</span></li>
+          <li><span class="cn">conviction</span><span class="ct">NUMERIC</span></li>
+          <li><span class="cn">outcome</span><span class="ct">NUMERIC</span></li>
+          <li><span class="cn">lesson</span><span class="ct">TEXT</span></li>
+          <li><span class="cn">created_at</span><span class="ct">TIMESTAMPTZ</span></li>
+        </ul>
+      </div>
+
+      <!-- 내 결과 -->
+      <div class="erd-tbl mine">
+        <div class="th"><span class="tname">tb_strategist_signals ⭐</span><span class="owner">내 판단 결과 · 내 소유 (내가 쓰기)</span></div>
+        <ul>
+          <li><span class="cn"><span class="key">🔑</span> id</span><span class="ct">BIGSERIAL</span></li>
+          <li><span class="cn"><span class="key">🔗</span> cycle_id</span><span class="ct">BIGINT</span></li>
+          <li><span class="cn"><span class="key">🔗</span> ticker</span><span class="ct">VARCHAR</span></li>
+          <li><span class="cn">inv_type</span><span class="ct">VARCHAR</span></li>
+          <li><span class="cn">side</span><span class="ct">VARCHAR</span></li>
+          <li><span class="cn">conviction</span><span class="ct">NUMERIC(3,1)</span></li>
+          <li><span class="cn">signal_consensus</span><span class="ct">SMALLINT</span></li>
+          <li><span class="cn">summary</span><span class="ct">TEXT</span></li>
+          <li><span class="cn">bull_case</span><span class="ct">TEXT</span></li>
+          <li><span class="cn">key_risk</span><span class="ct">TEXT</span></li>
+          <li><span class="cn">risk_rebuttal</span><span class="ct">TEXT</span></li>
+          <li><span class="cn">counter_scenarios</span><span class="ct">JSONB</span></li>
+          <li><span class="cn">evidence</span><span class="ct">JSONB</span></li>
+          <li><span class="cn">sizing_hint</span><span class="ct">JSONB</span></li>
+          <li><span class="cn">persona_notes</span><span class="ct">TEXT · null</span></li>
+          <li><span class="cn">created_at</span><span class="ct">TIMESTAMPTZ</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div style="height:18px"></div>
+    <h3 class="sub-h">테이블 간 관계 (Relationships)</h3>
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr><th>관계</th><th>설명</th></tr></thead>
+        <tbody>
+          <tr><td><b>입력 5개 → 나</b></td><td>읽기(SELECT). <code>ticker</code> + <code>cycle_id</code>로 같은 판단 사이클의 신호를 매칭해서 가져옴</td></tr>
+          <tr><td><b>나 → tb_strategist_signals</b></td><td>쓰기(INSERT). 내 판단 결과 1행 저장 (원본 신호는 각 팀이 이미 저장했으니 나는 결과만)</td></tr>
+          <tr><td><b>tb_memory_entries → 나</b></td><td>읽기. 같은 <code>ticker</code>의 <b>최근 5개</b> 과거 기록을 GPT 프롬프트에 넣음</td></tr>
+          <tr><td><b>공통 키 <code>cycle_id</code></b></td><td>한 번의 판단 사이클(08:30 실행)을 묶는 열쇠 <span class="dim">— 생성 주체는 오케스트레이터, 팀 확인 중</span></td></tr>
+          <tr><td><b>공통 키 <code>ticker</code></b></td><td>종목 식별 (<code>tb_macro_signals</code>만 없음 — 매크로는 시장 전체라서)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="pipe-note" style="margin-top:12px;">📌 입력 테이블에는 다른 컬럼도 더 있지만, <b>여기엔 내가 실제로 SELECT하는 컬럼만</b> 그렸어 (Pull 방식 = 필요한 것만 읽음). ❌ 필드는 위 "요청 스펙" 섹션 참고. 컬럼 타입은 PostgreSQL 기준 제안값이라 팀 합의로 조정 가능.</p>
   </div>
 </section>
 
@@ -947,8 +1117,8 @@ side(매수/매도/보류) + conviction(0~10) + rationale + key_risk</pre>
 
 <footer>
   <div class="wrap">
-    <b>Quantinue — Strategist</b> · 작성 이은미 · v1.4 · 최종 수정 2026-07-03 16:38 KST<br />
-    <span style="opacity:.7">변경 이력 — v1.0 최초 작성 · v1.1 신호 JSON 예시 + Critic payload 상세 · v1.2 요청 스펙(인터페이스 계약) 추가 + 수정시간 표기 · v1.3 테이블명 tb_ 접두사 + category→sector · v1.4 처리 로직 상세(기준+이유+Python) 추가</span><br />
+    <b>Quantinue — Strategist</b> · 작성 이은미 · v1.5 · 최종 수정 2026-07-03 16:42 KST<br />
+    <span style="opacity:.7">변경 이력 — v1.0 최초 작성 · v1.1 신호 JSON 예시 + Critic payload 상세 · v1.2 요청 스펙(인터페이스 계약) 추가 + 수정시간 표기 · v1.3 테이블명 tb_ 접두사 + category→sector · v1.4 처리 로직 상세(기준+이유+Python) 추가 · v1.5 내 쪽 ERD(테이블 6개 + 관계) 추가</span><br />
     팀 여름이었다 · 문의는 은미에게 직접 or 팀 채널로!
   </div>
 </footer>
