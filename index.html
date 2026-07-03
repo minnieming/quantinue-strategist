@@ -160,6 +160,25 @@
   .flow-item.gpt { border-color: rgba(251,191,36,.4); }
   .flow-item.gpt::before { color: var(--gold); }
 
+  /* ───── Why callout ───── */
+  .why {
+    background: var(--gold-soft); border-left: 3px solid var(--gold);
+    border-radius: 0 10px 10px 0; padding: 12px 16px; margin-top: 10px;
+    font-size: 13.5px; color: var(--text-dim);
+  }
+  .why b { color: var(--gold); font-weight: 700; }
+  .step-h {
+    font-size: 18px; font-weight: 800; margin: 28px 0 12px;
+    display: flex; align-items: center; gap: 10px; letter-spacing: -0.02em;
+  }
+  .step-h .n {
+    flex-shrink: 0; width: 28px; height: 28px; border-radius: 8px;
+    background: var(--accent-soft); color: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 800; font-family: var(--mono);
+  }
+  .sub-h { font-size: 15px; font-weight: 700; margin: 16px 0 8px; color: var(--text); }
+
   /* ───── Code ───── */
   pre {
     background: #0d1226; border: 1px solid var(--line); border-radius: 14px;
@@ -219,8 +238,8 @@
     <div class="badge-row">
       <span class="badge gold">팀 여름이었다</span>
       <span class="badge green">⑤ Strategist 담당</span>
-      <span class="badge">v1.3 · 2026-07-03</span>
-      <span class="badge">🕒 최종 수정 2026-07-03 16:26 KST</span>
+      <span class="badge">v1.4 · 2026-07-03</span>
+      <span class="badge">🕒 최종 수정 2026-07-03 16:38 KST</span>
     </div>
     <h1>Quantinue<br /><span class="grad">Strategist 파트 진행상황</span></h1>
     <p class="subtitle">
@@ -596,6 +615,210 @@ cross_source_confirmed = 1  →  확신 <span class="s">+0.15</span> 힌트</pre
   </div>
 </section>
 
+<!-- ───────── 처리 로직 상세 (기준 + 이유) ───────── -->
+<section>
+  <div class="wrap">
+    <div class="sec-label">Rationale · 판단 근거</div>
+    <h2>내가 처리하는 것 — 각 단계 기준과 이유</h2>
+    <p class="sec-desc">위 11단계를 하나씩, <b>어떤 기준으로 · 어떻게 처리하고 · 왜 그렇게 하는지(이유)</b>까지 풀어놓은 거야. "얘가 무슨 근거로 매수/보류를 정하나"를 팀원 누구나 볼 수 있게.</p>
+
+    <!-- 1. hard_block -->
+    <div class="step-h"><span class="n">1</span>hard_block 체크 (공시 + 뉴스)</div>
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr><th style="width:130px">항목</th><th>내용</th></tr></thead>
+        <tbody>
+          <tr><td><b>기준</b></td><td>공시 또는 뉴스의 <code>hard_block == 1</code></td></tr>
+          <tr><td><b>처리</b></td><td><b>GPT 호출 없이 즉시 "보류"</b> (conviction = 0)</td></tr>
+          <tr><td><b>투자유형 차이</b></td><td><b>없음</b> — 안정형이든 공격형이든 상폐 종목은 무조건 차단</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="why"><b>왜?</b> 상폐·거래정지는 판단이 아니라 <b>사실</b>. LLM은 확률적이라 드물게 "그래도 분석해보자"고 할 수 있음 → 절대 규칙은 Python이 강제.</div>
+
+    <!-- 2. macro_veto -->
+    <div class="step-h"><span class="n">2</span>macro_veto — 매크로 거부권</div>
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr><th>항목</th><th>안정형</th><th>공격형</th></tr></thead>
+        <tbody>
+          <tr><td><b>발동 조건</b></td><td><code>regime=="risk-off"</code> AND <code>risk_score ≥ 6</code></td><td><code>regime=="risk-off"</code> AND <code>risk_score ≥ 8</code></td></tr>
+          <tr><td><b>처리</b></td><td>즉시 "보류"</td><td>즉시 "보류"</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="height:10px"></div>
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr><th>risk-off일 때 risk_score</th><th>안정형</th><th>공격형</th></tr></thead>
+        <tbody>
+          <tr><td>5</td><td class="dim">통과 (카운트만 0)</td><td class="dim">통과</td></tr>
+          <tr><td>6</td><td><span class="tag hot">거부권 → 보류</span></td><td class="dim">통과</td></tr>
+          <tr><td>7</td><td><span class="tag hot">거부권 → 보류</span></td><td class="dim">통과</td></tr>
+          <tr><td>8 이상</td><td><span class="tag hot">거부권 → 보류</span></td><td><span class="tag hot">거부권 → 보류</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="why"><b>왜?</b> 시장 전체가 무너지면 좋은 종목도 같이 떨어짐. 안정형은 위험도 6부터 손 뗌(겁 많음), 공격형은 8까지 버팀.</div>
+
+    <!-- 3. 신호별 카운트 -->
+    <div class="step-h"><span class="n">3</span>신호별 매수 카운트 (+1 / 0)</div>
+    <p class="sec-desc" style="margin-bottom:14px;">각 신호를 아래 로직으로 <b>+1(=1) / 0</b> 판정. 합계 = <code>signal_consensus</code> (0~4).
+    <br />★ 각 신호의 조건들은 전부 <b>AND(그리고)</b>로 묶여 있어 — <b>모든 조건을 만족해야 +1</b>, 하나라도 못 넘으면 0.</p>
+
+    <div class="sub-h">3-1. 공시 판정</div>
+<pre><span class="k">def</span> 공시_카운트(disc, inv_type):
+    <span class="k">if</span> disc.has_signal == <span class="n">0</span>:
+        <span class="k">return</span> <span class="n">0</span>                        <span class="c"># 오늘 공시 없음 → 카운트 없음</span>
+    문턱 = {<span class="s">"안정형"</span>: {<span class="s">"sent"</span>: <span class="n">0.70</span>, <span class="s">"imp"</span>: <span class="n">0.40</span>},
+           <span class="s">"공격형"</span>: {<span class="s">"sent"</span>: <span class="n">0.60</span>, <span class="s">"imp"</span>: <span class="n">0.25</span>}}[inv_type]
+    <span class="k">if</span> disc.sentiment_score &gt;= 문턱[<span class="s">"sent"</span>] <span class="k">and</span> disc.importance &gt;= 문턱[<span class="s">"imp"</span>]:
+        <span class="k">return</span> <span class="n">1</span>                        <span class="c"># 호재이면서(AND) 충분히 큰 사건 → +1</span>
+    <span class="k">return</span> <span class="n">0</span></pre>
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr><th>예시 (sentiment=0.65, importance=0.35)</th><th>안정형</th><th>공격형</th></tr></thead>
+        <tbody>
+          <tr><td>sentiment 0.65</td><td class="dim">0.70 미달 ✗</td><td>0.60 충족 ✓</td></tr>
+          <tr><td>importance 0.35</td><td class="dim">0.40 미달 ✗</td><td>0.25 충족 ✓</td></tr>
+          <tr><td><b>결과</b></td><td><b>0</b></td><td><b>+1</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub-h">3-2. 뉴스 판정 <span style="font-weight:500; color:var(--text-dim); font-size:13px;">(조건 제일 많음 — 루머 방어)</span></div>
+<pre><span class="k">def</span> 뉴스_카운트(news, inv_type):
+    <span class="k">if</span> news.has_signal == <span class="n">0</span>:
+        <span class="k">return</span> <span class="n">0</span>
+    <span class="k">if</span> inv_type == <span class="s">"안정형"</span>:
+        <span class="k">if</span> (news.sentiment_score &gt;= <span class="n">0.70</span>
+            <span class="k">and</span> news.grade_score &gt;= <span class="n">0.70</span>          <span class="c"># 최상급 출처만</span>
+            <span class="k">and</span> news.confirmed_score &gt;= <span class="n">0.60</span>      <span class="c"># 확정 비율 60%+</span>
+            <span class="k">and</span> news.cross_source_confirmed == <span class="n">1</span>): <span class="c"># 교차확인 필수!</span>
+            <span class="k">return</span> <span class="n">1</span>
+    <span class="k">else</span>:  <span class="c"># 공격형</span>
+        <span class="k">if</span> (news.sentiment_score &gt;= <span class="n">0.60</span>
+            <span class="k">and</span> news.grade_score &gt;= <span class="n">0.50</span>
+            <span class="k">and</span> news.confirmed_score &gt;= <span class="n">0.40</span>):    <span class="c"># 교차확인은 필수 아님</span>
+            <span class="k">return</span> <span class="n">1</span>
+    <span class="k">return</span> <span class="n">0</span></pre>
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr><th>조건 (전부 AND)</th><th>안정형</th><th>공격형</th></tr></thead>
+        <tbody>
+          <tr><td>sentiment_score ≥</td><td>0.70</td><td>0.60</td></tr>
+          <tr><td>grade_score ≥</td><td>0.70</td><td>0.50</td></tr>
+          <tr><td>confirmed_score ≥</td><td>0.60</td><td>0.40</td></tr>
+          <tr><td>cross_source_confirmed</td><td><b>= 1 필수</b></td><td class="dim">없어도 됨</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="why"><b>AND의 의미:</b> 안정형 뉴스는 위 4개 조건을 <b>전부</b> 넘어야 +1(=1). 예를 들어 sentiment·grade·confirmed 다 좋아도 <code>cross_source_confirmed</code>가 0이면 → 0(카운트 안 됨). "하나라도 빠지면 인정 안 함"이 루머 방어의 핵심.</div>
+
+    <div class="sub-h">3-3. 기술 판정</div>
+<pre><span class="k">def</span> 기술_카운트(tech, inv_type):
+    문턱 = {<span class="s">"안정형"</span>: <span class="n">0.55</span>, <span class="s">"공격형"</span>: <span class="n">0.50</span>}[inv_type]
+    <span class="k">if</span> <span class="s">"상승"</span> <span class="k">in</span> tech.trend <span class="k">and</span> tech.ml_prob_up &gt; 문턱:
+        <span class="k">return</span> <span class="n">1</span>                        <span class="c"># 오름세 + AI도 상승 예측 → +1</span>
+    <span class="k">return</span> <span class="n">0</span></pre>
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr><th>조건 (AND)</th><th>안정형</th><th>공격형</th></tr></thead>
+        <tbody>
+          <tr><td>trend</td><td>"상승" 포함</td><td>"상승" 포함</td></tr>
+          <tr><td>ml_prob_up &gt;</td><td>0.55</td><td>0.50</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub-h">3-4. 매크로 판정</div>
+<pre><span class="k">def</span> 매크로_카운트(macro):
+    <span class="k">return</span> <span class="n">1</span> <span class="k">if</span> macro.regime == <span class="s">"risk-on"</span> <span class="k">else</span> <span class="n">0</span>   <span class="c"># 유형 무관 동일</span></pre>
+
+    <div class="sub-h">3-5. 합산 + 매수 후보 문턱 (투자유형별!)</div>
+<pre>consensus = 공시 + 뉴스 + 기술 + 매크로   <span class="c"># 0~4</span>
+
+필요_개수 = {<span class="s">"안정형"</span>: <span class="n">3</span>, <span class="s">"공격형"</span>: <span class="n">2</span>}[inv_type]
+매수_후보 = (consensus &gt;= 필요_개수)      <span class="c"># 미달이면 GPT에게 "보류 권장" 전달</span></pre>
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr><th>consensus</th><th>안정형 (3개 필요)</th><th>공격형 (2개 필요)</th></tr></thead>
+        <tbody>
+          <tr><td>0~1</td><td class="dim">보류 권장</td><td class="dim">보류 권장</td></tr>
+          <tr><td>2</td><td class="dim">보류 권장</td><td><span class="tag use">매수 후보</span></td></tr>
+          <tr><td>3</td><td><span class="tag use">매수 후보</span></td><td><span class="tag use">매수 후보</span></td></tr>
+          <tr><td>4</td><td><span class="tag use">강한 매수 후보</span></td><td><span class="tag use">강한 매수 후보</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 4. 교차확인 보너스 -->
+    <div class="step-h"><span class="n">4</span>교차확인 보너스 (뉴스)</div>
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr><th style="width:130px">항목</th><th>내용</th></tr></thead>
+        <tbody>
+          <tr><td><b>기준</b></td><td><code>cross_source_confirmed == 1</code> (유형 무관 공통)</td></tr>
+          <tr><td><b>처리</b></td><td>확신(conviction) 힌트 <b>+0.15</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="why"><b>왜?</b> Reuters + Bloomberg가 독립 확인한 뉴스 = 루머 아님. 반대로 buzz만 높고 교차확인 0이면 펌프(작전) 의심 → 가중치 축소.</div>
+
+    <!-- 5. GPT-4o 판단 -->
+    <div class="step-h"><span class="n">5</span>GPT-4o 판단 — 뭘 보고 판단하나</div>
+    <div class="why" style="border-left-color: var(--accent); background: var(--accent-soft);"><b style="color:var(--accent)">★ 핵심 원칙:</b> GPT는 숫자 계산을 다시 하지 않는다. 내가 계산 끝낸 요약본을 보고 <b>"맥락 판단"만</b> 한다.</div>
+<pre><span class="c">GPT에게 넘어가는 것:</span>
+① 신호 4개 요약     <span class="c">← ①에서 받은 값 (핵심 필드 + reason 텍스트)</span>
+② 신호별 판정 결과   <span class="c">← 3번에서 계산 (공시+1, 뉴스0, 기술+1, 매크로+1 …)</span>
+③ consensus 합계    <span class="c">← "4개 중 3개 매수 방향" + 매수 후보 여부</span>
+④ 과거 메모리       <span class="c">← DB tb_memory_entries 테이블</span>
+⑤ 투자유형 정책      <span class="c">← config.py POLICY</span>
+
+<span class="c">GPT가 내놓는 것:</span>
+side(매수/매도/보류) + conviction(0~10) + rationale + key_risk</pre>
+    <div class="grid c2" style="margin-top:12px;">
+      <div class="card">
+        <h3>④ 과거 메모리는 어디서?</h3>
+        <p>Reviewer(파이프라인 ⑧)가 매 사이클 결과를 <code>tb_memory_entries</code>에 기록. 예: <i>"2026-06-20 NVDA 매수 → -3% 손실. 원인: 실적 기대 과열에 늦게 진입"</i>. 나는 판단 전 그 ticker의 <b>최근 5개</b>를 꺼내 GPT 프롬프트에 넣음. → 같은 실수 반복 방지.</p>
+      </div>
+      <div class="card">
+        <h3>⑤ 투자유형 정책은 어디서?</h3>
+        <p>사용자가 처음 "안정형/공격형" 설정 → DB에 저장. 문턱 숫자(0.70, 8.0 등)는 <code>config.py</code>의 <code>POLICY</code>에 정의. 실행 시 DB에서 유형을 읽고 → config.py에서 그 유형 문턱 세트를 꺼내 씀.</p>
+      </div>
+    </div>
+    <p class="pipe-note" style="margin-top:10px;">페르소나(투자 레전드 관점)는 <b>MVP 2단계</b>에서 추가 예정 — 지금은 안 넣음.</p>
+
+    <!-- 6. 확신 검증 -->
+    <div class="step-h"><span class="n">6</span>확신 검증 (min_conviction) — 투자유형별!</div>
+<pre><span class="k">if</span> signal.side == <span class="s">"매수"</span> <span class="k">and</span> signal.conviction &lt; MIN_CONVICTION[inv_type]:
+    signal.side = <span class="s">"보류"</span>    <span class="c"># Python이 강제 (LLM 재량 아님)</span></pre>
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr><th>GPT 판단 예시</th><th>안정형 (8.0)</th><th>공격형 (5.0)</th></tr></thead>
+        <tbody>
+          <tr><td>매수, conviction 9.0</td><td class="dim">매수 유지</td><td class="dim">매수 유지</td></tr>
+          <tr><td>매수, conviction 6.5</td><td><span class="tag hot">보류 강등</span></td><td class="dim">매수 유지</td></tr>
+          <tr><td>매수, conviction 4.0</td><td><span class="tag hot">보류 강등</span></td><td><span class="tag hot">보류 강등</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="why"><b>왜?</b> "확신 없는 매수"를 코드 레벨에서 차단. 같은 GPT 판단이라도 유형에 따라 결과가 갈림.</div>
+
+    <!-- 7. 저장·전달 -->
+    <div class="step-h"><span class="n">7</span>저장 · 전달</div>
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr><th style="width:130px">항목</th><th>내용</th></tr></thead>
+        <tbody>
+          <tr><td><b>처리</b></td><td>내 결과를 <code>tb_strategist_signals</code>에 저장 → Critic에게 payload 전달</td></tr>
+          <tr><td><b>이유</b></td><td>원본 4개 신호는 각 팀이 이미 저장 → 나는 <b>내 판단 결과만</b> 저장</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
 <!-- ───────── Critic payload ───────── -->
 <section>
   <div class="wrap">
@@ -724,8 +947,8 @@ cross_source_confirmed = 1  →  확신 <span class="s">+0.15</span> 힌트</pre
 
 <footer>
   <div class="wrap">
-    <b>Quantinue — Strategist</b> · 작성 이은미 · v1.3 · 최종 수정 2026-07-03 16:26 KST<br />
-    <span style="opacity:.7">변경 이력 — v1.0 최초 작성 · v1.1 신호 JSON 예시 + Critic payload 상세 · v1.2 요청 스펙(인터페이스 계약) 추가 + 수정시간 표기 · v1.3 테이블명 tb_ 접두사 + category→sector</span><br />
+    <b>Quantinue — Strategist</b> · 작성 이은미 · v1.4 · 최종 수정 2026-07-03 16:38 KST<br />
+    <span style="opacity:.7">변경 이력 — v1.0 최초 작성 · v1.1 신호 JSON 예시 + Critic payload 상세 · v1.2 요청 스펙(인터페이스 계약) 추가 + 수정시간 표기 · v1.3 테이블명 tb_ 접두사 + category→sector · v1.4 처리 로직 상세(기준+이유+Python) 추가</span><br />
     팀 여름이었다 · 문의는 은미에게 직접 or 팀 채널로!
   </div>
 </footer>
