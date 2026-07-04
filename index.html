@@ -25,6 +25,40 @@
     --blue-soft: rgba(37, 99, 235, 0.09);
     --mono: "SF Mono", ui-monospace, "Cascadia Code", Menlo, monospace;
   }
+  /* ───── 다크 모드 (토글 시 적용) ───── */
+  html[data-theme="dark"] {
+    --bg: #0b1020;
+    --bg-soft: #111830;
+    --card: #151d38;
+    --card-hover: #1a2344;
+    --line: #26304f;
+    --text: #e8ecf6;
+    --text-dim: #9aa5c4;
+    --accent: #4ade80;
+    --accent-soft: rgba(74, 222, 128, 0.12);
+    --gold: #fbbf24;
+    --gold-soft: rgba(251, 191, 36, 0.12);
+    --red: #f87171;
+    --red-soft: rgba(248, 113, 113, 0.12);
+    --blue: #60a5fa;
+    --blue-soft: rgba(96, 165, 250, 0.12);
+  }
+  html[data-theme="dark"] pre { background: #0d1226; color: #c7d2ee; }
+  html[data-theme="dark"] pre .c { color: #667099; }
+  html[data-theme="dark"] .sidebar { background: #151d38; }
+  html[data-theme="dark"] .theme-toggle { box-shadow: 0 2px 10px rgba(0,0,0,0.4); }
+
+  /* ───── 테마 토글 버튼 ───── */
+  .theme-toggle {
+    position: fixed; bottom: 22px; right: 22px; z-index: 100;
+    width: 46px; height: 46px; border-radius: 50%;
+    border: 1px solid var(--line); background: var(--card); color: var(--text);
+    cursor: pointer; font-size: 20px; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.12); transition: transform .12s;
+  }
+  .theme-toggle:hover { transform: scale(1.08); }
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; }
   body {
@@ -336,8 +370,8 @@
     <div class="badge-row">
       <span class="badge gold">팀 여름이었다</span>
       <span class="badge green">⑤ Strategist 담당</span>
-      <span class="badge">v2.0 · 2026-07-04</span>
-      <span class="badge">🕒 최종 수정 2026-07-04 16:03 KST</span>
+      <span class="badge">v2.1 · 2026-07-04</span>
+      <span class="badge">🕒 최종 수정 2026-07-04 16:19 KST</span>
     </div>
     <h1>Quantinue<br /><span class="grad">Strategist 파트 진행상황</span></h1>
     <p class="subtitle">
@@ -876,7 +910,39 @@ cross_source_confirmed = 1  →  확신 <span class="s">+0.15</span> 힌트</pre
 
     <div class="why" style="border-left-color: var(--gold); background: var(--gold-soft);"><b>📈 "기대값(Expected Value)"이란?</b> 승률이 조금 낮아도 = <b>(이길 확률 × 이길 때 수익)</b>이 <b>(질 확률 × 질 때 손실)</b>보다 크면 장기적으로 이득이야. 공격형은 손실을 손절로 <b>-5%에 묶어두고</b>, 이기는 건 크게 먹어서(예: +15%) 기대값을 +로 만드는 걸 노려.</p></div>
 
-    <div class="sub-h">왜 이 숫자로 정했나 — 핵심 3개 (수치 이유 + 기대값)</div>
+    <div class="sub-h">🧪 테스트용 공격형 프리셋 3종 (A 신중 / B 표준 / C 초공격)</div>
+    <p class="sec-desc" style="margin-bottom:12px;">공격형 안에서도 <b>얼마나 공격적이냐</b>를 3단계로 나눴어. 백테스트로 A·B·C 각각 돌려보고 <b>기대값이 제일 높은 걸</b> 고르면 돼. (문턱이 낮을수록 = 더 자주 진입 = 더 공격적)</p>
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr><th>파라미터</th><th>A. 신중 공격형</th><th>B. 표준 공격형 ⭐</th><th>C. 초공격형</th></tr></thead>
+        <tbody>
+          <tr><td>공시 sentiment / importance</td><td>0.65 / 0.30</td><td>0.60 / 0.25</td><td>0.55 / 0.20</td></tr>
+          <tr><td>뉴스 sentiment / grade / confirmed</td><td>0.65 / 0.55 / 0.50</td><td>0.60 / 0.50 / 0.40</td><td>0.55 / 0.45 / 0.30</td></tr>
+          <tr><td>뉴스 교차확인</td><td>권장(가중)</td><td>선택</td><td>선택</td></tr>
+          <tr><td>기술 ml_prob_up &gt;</td><td>0.55</td><td>0.50</td><td>0.50</td></tr>
+          <tr><td><b>필요 합의 수</b> (4개 중)</td><td><b>3개</b></td><td><b>2개</b></td><td><b>2개</b></td></tr>
+          <tr><td><b>min_conviction</b></td><td><b>6.0</b></td><td><b>5.0</b></td><td><b>4.0</b></td></tr>
+          <tr><td>매크로 감점</td><td>표준</td><td>표준</td><td>완화 (×0.5)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="grid c3" style="margin-top:14px;">
+      <div class="card">
+        <h3 style="color:var(--blue)">A. 신중 공격형</h3>
+        <p><b>진입:</b> 적음 · <b>승률:</b> 높음 · <b>놓침:</b> 많음<br />공격형이지만 "확실한 것 위주". 잦은 거래가 부담되거나 초기 안정 테스트용.<br /><b>기대값:</b> 건당 승률↑, 대신 기회 수↓</p>
+      </div>
+      <div class="card" style="border-color: rgba(22,163,74,.4)">
+        <h3 style="color:var(--accent)">B. 표준 공격형 ⭐</h3>
+        <p><b>진입:</b> 보통 · <b>승률:</b> 중간 · <b>놓침:</b> 보통<br />기회 포착과 리스크의 균형. <b>기본 추천값</b> (앞에서 설명한 그 값).<br /><b>기대값:</b> 빈도·승률 균형 → 무난</p>
+      </div>
+      <div class="card" style="border-color: rgba(220,38,38,.4)">
+        <h3 style="color:var(--red)">C. 초공격형</h3>
+        <p><b>진입:</b> 매우 많음 · <b>승률:</b> 낮음 · <b>놓침:</b> 거의 없음<br />신호 조금만 좋아도 진입. 손절(-5%)로 방어하며 <b>빈도로 승부</b>. 리스크 큼.<br /><b>기대값:</b> 다수 시도 중 몇 개 크게 → 손절 규율이 생명</p>
+      </div>
+    </div>
+    <div class="why"><b>어떻게 고르나?</b> 이건 "정답"이 아니라 <b>실험 대상</b>이야. 과거 데이터로 A·B·C를 각각 돌려서 <b>누적 수익(기대값)이 최대인 프리셋</b>을 채택하면 돼. config.py에 <code>PRESET = "B"</code>처럼 두고 바꿔가며 테스트하는 걸 추천. 시작은 <b>B(표준)</b>부터.</div>
+
+    <div class="sub-h">왜 이 숫자로 정했나 — 표준(B) 핵심 3개 (수치 이유 + 기대값)</div>
     <div class="grid" style="gap:12px">
       <div class="card">
         <h3>① 필요 합의 수 = <b style="color:var(--accent)">2개</b> (4개 신호 중)</h3>
@@ -1376,11 +1442,35 @@ side(매수/매도/보류) + conviction(0~10) + rationale + key_risk</pre>
 
 <footer>
   <div class="wrap">
-    <b>Quantinue — Strategist</b> · 작성 이은미 · v2.0 · 최종 수정 2026-07-04 16:03 KST<br />
-    <span style="opacity:.7">변경 이력 — v1.0 최초 작성 · v1.1 신호 JSON 예시 + Critic payload 상세 · v1.2 요청 스펙(인터페이스 계약) 추가 + 수정시간 표기 · v1.3 테이블명 tb_ 접두사 + category→sector · v1.4 처리 로직 상세(기준+이유+Python) 추가 · v1.5 내 쪽 ERD(테이블 6개 + 관계) 추가 · v1.6 tb_strategist_signals 컬럼 사전 + 데이터타입 설명 추가 · v1.7 판단 구조(코드 게이트+LLM 샌드위치) + conviction 채점 방식 설명 추가 · v1.8 라이트 테마 전환 + 왼쪽 목차 메뉴 + 섹션 번호 · v1.9 매크로 거부권→conviction 감점 전환 + Critic 역할경계(bear_case 제외) 정리 · v2.0 투자유형 공격형 단일화(안정형 제거) + 수치 선정 이유·기대값 설명 추가</span><br />
+    <b>Quantinue — Strategist</b> · 작성 이은미 · v2.1 · 최종 수정 2026-07-04 16:19 KST<br />
+    <span style="opacity:.7">변경 이력 — v1.0 최초 작성 · v1.1 신호 JSON 예시 + Critic payload 상세 · v1.2 요청 스펙(인터페이스 계약) 추가 + 수정시간 표기 · v1.3 테이블명 tb_ 접두사 + category→sector · v1.4 처리 로직 상세(기준+이유+Python) 추가 · v1.5 내 쪽 ERD(테이블 6개 + 관계) 추가 · v1.6 tb_strategist_signals 컬럼 사전 + 데이터타입 설명 추가 · v1.7 판단 구조(코드 게이트+LLM 샌드위치) + conviction 채점 방식 설명 추가 · v1.8 라이트 테마 전환 + 왼쪽 목차 메뉴 + 섹션 번호 · v1.9 매크로 거부권→conviction 감점 전환 + Critic 역할경계(bear_case 제외) 정리 · v2.0 투자유형 공격형 단일화(안정형 제거) + 수치 선정 이유·기대값 설명 추가 · v2.1 공격형 프리셋 3종(A신중/B표준/C초공격) 비교표 + 다크모드 토글 추가</span><br />
     팀 여름이었다 · 문의는 은미에게 직접 or 팀 채널로!
   </div>
 </footer>
+
+<script>
+  (function () {
+    var KEY = 'qs-theme';
+    var root = document.documentElement;
+    if (localStorage.getItem(KEY) === 'dark') root.setAttribute('data-theme', 'dark');
+    var btn = document.createElement('button');
+    btn.className = 'theme-toggle';
+    function refresh() {
+      var dark = root.getAttribute('data-theme') === 'dark';
+      btn.textContent = dark ? '☀️' : '🌙';
+      btn.title = dark ? '라이트 모드로 전환' : '다크 모드로 전환';
+      btn.setAttribute('aria-label', btn.title);
+    }
+    btn.addEventListener('click', function () {
+      var dark = root.getAttribute('data-theme') === 'dark';
+      if (dark) { root.removeAttribute('data-theme'); localStorage.setItem(KEY, 'light'); }
+      else { root.setAttribute('data-theme', 'dark'); localStorage.setItem(KEY, 'dark'); }
+      refresh();
+    });
+    document.body.appendChild(btn);
+    refresh();
+  })();
+</script>
 
 </body>
 </html>
