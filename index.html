@@ -370,8 +370,8 @@
     <div class="badge-row">
       <span class="badge gold">팀 여름이었다</span>
       <span class="badge green">⑤ Strategist 담당</span>
-      <span class="badge">v2.2 · 2026-07-04</span>
-      <span class="badge">🕒 최종 수정 2026-07-04 17:59 KST</span>
+      <span class="badge">v2.3 · 2026-07-08</span>
+      <span class="badge">🕒 최종 수정 2026-07-08 11:49 KST</span>
     </div>
     <h1>Quantinue<br /><span class="grad">Strategist 파트 진행상황</span></h1>
     <p class="subtitle">
@@ -813,6 +813,12 @@ cross_source_confirmed = 1  →  확신 <span class="s">+0.15</span> 힌트</pre
           <li><span class="cn">evidence</span><span class="ct">JSONB</span></li>
           <li><span class="cn">sizing_hint</span><span class="ct">JSONB</span></li>
           <li><span class="cn">persona_notes</span><span class="ct">TEXT · null</span></li>
+          <li style="border-top:1px dashed var(--blue); margin-top:4px; padding-top:4px;"><span class="cn" style="color:var(--blue)">⚡ 실시간 스냅샷 (알파카)</span><span class="ct"></span></li>
+          <li><span class="cn">current_price</span><span class="ct">NUMERIC</span></li>
+          <li><span class="cn">day_high / day_low</span><span class="ct">NUMERIC</span></li>
+          <li><span class="cn">volume</span><span class="ct">BIGINT</span></li>
+          <li><span class="cn">turnover</span><span class="ct">NUMERIC</span></li>
+          <li><span class="cn">high_52w / low_52w</span><span class="ct">NUMERIC</span></li>
           <li><span class="cn">created_at</span><span class="ct">TIMESTAMPTZ</span></li>
         </ul>
       </div>
@@ -829,6 +835,7 @@ cross_source_confirmed = 1  →  확신 <span class="s">+0.15</span> 힌트</pre
           <tr><td><b>tb_memory_entries → 나</b></td><td>읽기. 같은 <code>ticker</code>의 <b>최근 5개</b> 과거 기록을 GPT 프롬프트에 넣음</td></tr>
           <tr><td><b>공통 키 <code>cycle_id</code></b></td><td>한 번의 판단 사이클(08:30 실행)을 묶는 열쇠 <span class="dim">— 생성 주체는 오케스트레이터, 팀 확인 중</span></td></tr>
           <tr><td><b>공통 키 <code>ticker</code></b></td><td>종목 식별 (<code>tb_macro_signals</code>만 없음 — 매크로는 시장 전체라서)</td></tr>
+          <tr><td><b>⚡ 실시간 스냅샷 (알파카)</b></td><td>DB 테이블이 아니라 <b>판단 순간</b> Alpaca API로 50개를 <b>배치 조회</b> → 현재가·당일고저·거래량·52주고저를 내 결과 행에 저장. 시세는 금방 낡아서 시계열로 안 쌓음</td></tr>
         </tbody>
       </table>
     </div>
@@ -856,6 +863,12 @@ cross_source_confirmed = 1  →  확신 <span class="s">+0.15</span> 힌트</pre
           <tr><td><code>evidence</code></td><td class="dim">JSONB</td><td>숫자 증거 (묶음/객체)</td><td class="dim">{"cross_source_confirmed":1}</td></tr>
           <tr><td><code>sizing_hint</code></td><td class="dim">JSONB</td><td>PM에게 주는 크기 제안 (묶음)</td><td class="dim">{"suggested_weight":0.03}</td></tr>
           <tr><td><code>persona_notes</code></td><td class="dim">TEXT · null</td><td>투자 레전드 관점 (MVP2, 지금은 비어있음)</td><td class="dim">null</td></tr>
+          <tr><td colspan="4" style="background:rgba(37,99,235,.08); font-weight:700; color:var(--blue)">⚡ 실시간 스냅샷 — 판단 순간 알파카(Alpaca) API로 50개 배치 조회한 그 순간 값. 시세는 몇 초만 지나도 낡아서 별도 시계열 테이블 대신 이 행에 박아둠</td></tr>
+          <tr><td><code>current_price</code></td><td class="dim">NUMERIC</td><td>판단 순간 현재가</td><td class="dim">125.30</td></tr>
+          <tr><td><code>day_high / day_low</code></td><td class="dim">NUMERIC</td><td>당일 고가 / 저가</td><td class="dim">126.1 / 121.4</td></tr>
+          <tr><td><code>volume</code></td><td class="dim">BIGINT</td><td>당일 거래량</td><td class="dim">3,820,000</td></tr>
+          <tr><td><code>turnover</code></td><td class="dim">NUMERIC</td><td>당일 거래대금</td><td class="dim">480,000,000</td></tr>
+          <tr><td><code>high_52w / low_52w</code></td><td class="dim">NUMERIC</td><td>52주 최고 / 최저</td><td class="dim">140 / 88</td></tr>
           <tr><td><code>created_at</code></td><td class="dim">TIMESTAMPTZ</td><td>저장된 시각 (타임존 포함)</td><td class="dim">2026-07-03 08:30</td></tr>
         </tbody>
       </table>
@@ -977,8 +990,20 @@ cross_source_confirmed = 1  →  확신 <span class="s">+0.15</span> 힌트</pre
       <div class="flow-item"><div><div class="t">교차확인 보너스</div><div class="d">cross_source_confirmed = 1이면 확신 +0.15</div></div></div>
       <div class="flow-item"><div><div class="t">매크로 위험 감점</div><div class="d">risk-off이면 위험도만큼 conviction 차감 (보류 강제 아님, 감점만)</div></div></div>
       <div class="flow-item gpt"><div><div class="t">GPT-4o 판단</div><div class="d">요약본 + 판정결과 + consensus + 메모리 + 정책을 보고 맥락 판단만</div></div></div>
-      <div class="flow-item gate"><div><div class="t">min_conviction 검증</div><div class="d">확신이 8.0 / 5.0 미달인 매수 → 보류로 강등</div></div></div>
-      <div class="flow-item"><div><div class="t">저장 · 전달</div><div class="d">tb_strategist_signals 저장 → Critic에 설득 payload 전달</div></div></div>
+      <div class="flow-item gate"><div><div class="t">min_conviction 검증</div><div class="d">확신이 <b>5.0</b> 미달인 매수 → 보류로 강등 (공격형 단일 기준)</div></div></div>
+      <div class="flow-item"><div><div class="t">저장 · 전달</div><div class="d">tb_strategist_signals에 저장(append) → <b>매수만</b> Critic에 payload 전달 (보류는 회고용으로 가볍게 저장, Critic 안 거침)</div></div></div>
+    </div>
+
+    <div class="sub-h" style="margin-top:22px;">🔁 이 11단계를 50개 종목마다 반복 — 순회 &amp; 순위매김</div>
+    <div class="grid c2" style="gap:12px;">
+      <div class="card">
+        <h3 style="color:var(--accent)">50개 전체 순회 (매 사이클)</h3>
+        <p>스크리너가 뽑은 <b>오늘의 50개(tb_daily_pick)를 매 사이클 전부</b> 위 11단계로 판단해. 뉴스·공시가 없는 종목도 기술·매크로만으로 후보가 될 수 있고, <b>보류도 다 기록</b>해야 나중에 회고(⑧)가 "왜 안 샀나 → 놓친 기회였나"를 배워. 같은 종목도 사이클마다 <b>새 행으로 쌓임(append)</b> → 이전 사이클과 비교 가능(시세·판단 변화 추적). 그래서 <code>updated_at</code>은 없음 — 행을 고치지 않으니까.</p>
+      </div>
+      <div class="card">
+        <h3 style="color:var(--blue)">순위매김 (금액은 몰라도 됨)</h3>
+        <p>50개 중 매수가 여럿 나오면 돈은 한정 → 다 못 사. 나는 <b>몇 개·얼마 살지는 정하지 않고</b>, <code>conviction</code>(0~10)·<code>signal_consensus</code>(0~4)로 <b>"이게 저것보다 더 확신"이라는 순위</b>만 매겨. 실제 <b>매수 개수·금액은 PM(⑦)</b>이 잔고 보고 상위부터 골라 결정. 나는 <code>sizing_hint</code>로 비중 <b>제안</b>만 얹어.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -1443,9 +1468,8 @@ side(매수/매도/보류) + conviction(0~10) + rationale + key_risk</pre>
 
 <footer>
   <div class="wrap">
-    <b>Quantinue — Strategist</b> · 작성 이은미 · v2.2 · 최종 수정 2026-07-04 17:59 KST<br />
-    <span style="opacity:.85">📁 <a href="portfolio.html" style="color:var(--accent); font-weight:700;">이은미 포트폴리오 보기 →</a></span><br />
-    <span style="opacity:.7">변경 이력 — v1.0 최초 작성 · v1.1 신호 JSON 예시 + Critic payload 상세 · v1.2 요청 스펙(인터페이스 계약) 추가 + 수정시간 표기 · v1.3 테이블명 tb_ 접두사 + category→sector · v1.4 처리 로직 상세(기준+이유+Python) 추가 · v1.5 내 쪽 ERD(테이블 6개 + 관계) 추가 · v1.6 tb_strategist_signals 컬럼 사전 + 데이터타입 설명 추가 · v1.7 판단 구조(코드 게이트+LLM 샌드위치) + conviction 채점 방식 설명 추가 · v1.8 라이트 테마 전환 + 왼쪽 목차 메뉴 + 섹션 번호 · v1.9 매크로 거부권→conviction 감점 전환 + Critic 역할경계(bear_case 제외) 정리 · v2.0 투자유형 공격형 단일화(안정형 제거) + 수치 선정 이유·기대값 설명 추가 · v2.1 공격형 프리셋 3종(A신중/B표준/C초공격) 비교표 + 다크모드 토글 추가 · v2.2 코드↔문서 검증 반영(교차확인=뉴스팀 입력·읽기전용 명시, 무조건 차단은 hard_block뿐 명확화)</span><br />
+    <b>Quantinue — Strategist</b> · 작성 이은미 · v2.3 · 최종 수정 2026-07-08 11:49 KST<br />
+    <span style="opacity:.7">변경 이력 — v1.0 최초 작성 · v1.1 신호 JSON 예시 + Critic payload 상세 · v1.2 요청 스펙(인터페이스 계약) 추가 + 수정시간 표기 · v1.3 테이블명 tb_ 접두사 + category→sector · v1.4 처리 로직 상세(기준+이유+Python) 추가 · v1.5 내 쪽 ERD(테이블 6개 + 관계) 추가 · v1.6 tb_strategist_signals 컬럼 사전 + 데이터타입 설명 추가 · v1.7 판단 구조(코드 게이트+LLM 샌드위치) + conviction 채점 방식 설명 추가 · v1.8 라이트 테마 전환 + 왼쪽 목차 메뉴 + 섹션 번호 · v1.9 매크로 거부권→conviction 감점 전환 + Critic 역할경계(bear_case 제외) 정리 · v2.0 투자유형 공격형 단일화(안정형 제거) + 수치 선정 이유·기대값 설명 추가 · v2.1 공격형 프리셋 3종(A신중/B표준/C초공격) 비교표 + 다크모드 토글 추가 · v2.2 코드↔문서 검증 반영(교차확인=뉴스팀 입력·읽기전용 명시, 무조건 차단은 hard_block뿐 명확화) · v2.3 실시간 스냅샷 컬럼(알파카 배치조회: current_price·day_high/low·volume·turnover·high_52w/low_52w) 추가 + 50개 순회·순위매김 명시 + 매수만 Critic/보류 저장 분기 + min_conviction 8.0 잔재 정리 + 포트폴리오 링크 제거(개인문서 배포 제외)</span><br />
     팀 여름이었다 · 문의는 은미에게 직접 or 팀 채널로!
   </div>
 </footer>
