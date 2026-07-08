@@ -362,8 +362,9 @@
     <a href="#s10"><span class="num">12</span>처리 로직·이유</a>
     <a href="#s11"><span class="num">13</span>코드 vs LLM</a>
     <a href="#s12"><span class="num">14</span>Critic 전달</a>
-    <a href="#s13"><span class="num">15</span>팀 확인 요청</a>
-    <a href="#s14"><span class="num">16</span>다음 할 일</a>
+    <a href="#strigger"><span class="num">15</span>Critic 연결·트리거</a>
+    <a href="#s13"><span class="num">16</span>팀 확인 요청</a>
+    <a href="#s14"><span class="num">17</span>다음 할 일</a>
   </nav>
 </aside>
 
@@ -372,8 +373,8 @@
     <div class="badge-row">
       <span class="badge gold">팀 여름이었다</span>
       <span class="badge green">⑤ Strategist 담당</span>
-      <span class="badge">v2.9 · 2026-07-08</span>
-      <span class="badge">🕒 최종 수정 2026-07-08 17:04 KST</span>
+      <span class="badge">v3.0 · 2026-07-08</span>
+      <span class="badge">🕒 최종 수정 2026-07-08 18:37 KST</span>
     </div>
     <h1>Quantinue<br /><span class="grad">Strategist 파트 진행상황</span></h1>
     <p class="subtitle">
@@ -1530,6 +1531,36 @@ side(매수/매도/보류) + conviction(0~1) + rationale + key_risk</pre>
   </div>
 </section>
 
+<!-- ───────── Critic 연결 · 트리거 ───────── -->
+<section>
+  <div class="wrap">
+    <div class="sec-label" id="strigger">Trigger · Critic 연결</div>
+    <h2>Critic 연결 방식 — 폴링 대신 트리거</h2>
+    <p class="sec-desc">Strategist 판단이 끝났을 때 Critic이 그 결과를 어떻게 넘겨받는가. 핵심은 <b>Critic이 계속 확인(폴링)하지 않고, Strategist가 끝나면 넘겨주는(트리거)</b> 방식.</p>
+
+    <div class="grid c2">
+      <div class="card" style="border-color: rgba(220,38,38,.4)">
+        <h3 style="color:var(--red)">❌ 폴링 (비효율)</h3>
+        <p>Critic이 "Strategist 끝났나?"를 <b>계속 물어봄</b> → 자원 낭비 + 반응 지연.<br /><b>비유:</b> 택배 올 때까지 문 앞에서 계속 확인 🚪</p>
+      </div>
+      <div class="card" style="border-color: rgba(22,163,74,.4)">
+        <h3 style="color:var(--accent)">✅ 트리거 (권장)</h3>
+        <p>Strategist가 완료하면 <b>Critic을 부름(호출)/알림</b> → 즉시 반응, 낭비 없음.<br /><b>비유:</b> 초인종 — 도착하면 알림 🔔</p>
+      </div>
+    </div>
+
+    <h3 class="sub-h">현재 설계 (1차 MVP) — 직접 호출 트리거</h3>
+    <p class="sec-desc">오케스트레이터가 Strategist 완료 직후 <b>매수 시그널만</b> 즉시 Critic에 넘긴다. Critic은 폴링하지 않는다.</p>
+<pre><span class="c"># pipeline/orchestrator.py</span>
+signal  = fundmanager.propose_signal(bundle)   <span class="c"># ⑤ 끝나면</span>
+verdict = critic.critique(signal)              <span class="c"># ⑥ 즉시 호출 (트리거!)</span></pre>
+    <p class="pipe-note">📌 매수만 Critic으로(split_for_routing) · 보류는 회고용 저장만 → Critic 부하도 줄인다.</p>
+
+    <h3 class="sub-h">2차 확장 — 이벤트 기반</h3>
+    <p class="sec-desc">종목이 많거나 비동기 처리가 필요하면: 메시지 큐 / DB의 LISTEN·NOTIFY 등으로 <b>Strategist 저장 시 이벤트 발행 → Critic 구독</b>. 지금은 단방향 1패스라 직접 호출로 충분.</p>
+  </div>
+</section>
+
 <!-- ───────── 팀 확인 요청 ───────── -->
 <section>
   <div class="wrap">
@@ -1565,8 +1596,8 @@ side(매수/매도/보류) + conviction(0~1) + rationale + key_risk</pre>
 
 <footer>
   <div class="wrap">
-    <b>Quantinue — Strategist</b> · 작성 이은미 · v2.9 · 최종 수정 2026-07-08 17:04 KST<br />
-    <span style="opacity:.7">변경 이력 — v1.0 최초 작성 · v1.1 신호 JSON 예시 + Critic payload 상세 · v1.2 요청 스펙(인터페이스 계약) 추가 + 수정시간 표기 · v1.3 테이블명 tb_ 접두사 + category→sector · v1.4 처리 로직 상세(기준+이유+Python) 추가 · v1.5 내 쪽 ERD(테이블 6개 + 관계) 추가 · v1.6 tb_strategist_signals 컬럼 사전 + 데이터타입 설명 추가 · v1.7 판단 구조(코드 게이트+LLM 샌드위치) + conviction 채점 방식 설명 추가 · v1.8 라이트 테마 전환 + 왼쪽 목차 메뉴 + 섹션 번호 · v1.9 매크로 거부권→conviction 감점 전환 + Critic 역할경계(bear_case 제외) 정리 · v2.0 투자유형 공격형 단일화(안정형 제거) + 수치 선정 이유·기대값 설명 추가 · v2.1 공격형 프리셋 3종(A신중/B표준/C초공격) 비교표 + 다크모드 토글 추가 · v2.2 코드↔문서 검증 반영(교차확인=뉴스팀 입력·읽기전용 명시, 무조건 차단은 hard_block뿐 명확화) · v2.3 실시간 스냅샷 컬럼(알파카 배치조회: current_price·day_high/low·volume·turnover·high_52w/low_52w) 추가 + 50개 순회·순위매김 명시 + 매수만 Critic/보류 저장 분기 + min_conviction 8.0 잔재 정리 + 포트폴리오 링크 제거(개인문서 배포 제외) · v2.4 1차 목데이터 테스트(50개·실제 시세·GPT) 섹션 + 판단 로직 변경 이력(매크로 표→감점 · 매도→보류 흡수 · 문턱 빡센2) 섹션 추가 · v2.5 테스트 결과 버전별 표 명확화 + v3 최종 판정 반영 · v2.6 테스트 결과 표를 v1↔v3 비교로 간소화(중간 v2 제외) · v2.7 테스트·변경이력을 목차 10·11번으로 정식 편입(기존 10~14 → 12~16 재번호) · v2.8 문서 전반의 옛 v1 수치를 v3로 통일(문턱 0.70/0.55/0.50/0.60 · min_conviction 6.0 · 교차확인 confirmed_score 비례 · 매크로 표 제거→3신호 consensus 0~3 · 판단 10단계) · v2.9 conviction 스케일 0~10 → 0~1 소수3자리 통일(min_conviction 0.6 · 매크로 감점·교차확인 보너스 ÷10 · 모든 스코어 0~1)</span><br />
+    <b>Quantinue — Strategist</b> · 작성 이은미 · v3.0 · 최종 수정 2026-07-08 18:37 KST<br />
+    <span style="opacity:.7">변경 이력 — v1.0 최초 작성 · v1.1 신호 JSON 예시 + Critic payload 상세 · v1.2 요청 스펙(인터페이스 계약) 추가 + 수정시간 표기 · v1.3 테이블명 tb_ 접두사 + category→sector · v1.4 처리 로직 상세(기준+이유+Python) 추가 · v1.5 내 쪽 ERD(테이블 6개 + 관계) 추가 · v1.6 tb_strategist_signals 컬럼 사전 + 데이터타입 설명 추가 · v1.7 판단 구조(코드 게이트+LLM 샌드위치) + conviction 채점 방식 설명 추가 · v1.8 라이트 테마 전환 + 왼쪽 목차 메뉴 + 섹션 번호 · v1.9 매크로 거부권→conviction 감점 전환 + Critic 역할경계(bear_case 제외) 정리 · v2.0 투자유형 공격형 단일화(안정형 제거) + 수치 선정 이유·기대값 설명 추가 · v2.1 공격형 프리셋 3종(A신중/B표준/C초공격) 비교표 + 다크모드 토글 추가 · v2.2 코드↔문서 검증 반영(교차확인=뉴스팀 입력·읽기전용 명시, 무조건 차단은 hard_block뿐 명확화) · v2.3 실시간 스냅샷 컬럼(알파카 배치조회: current_price·day_high/low·volume·turnover·high_52w/low_52w) 추가 + 50개 순회·순위매김 명시 + 매수만 Critic/보류 저장 분기 + min_conviction 8.0 잔재 정리 + 포트폴리오 링크 제거(개인문서 배포 제외) · v2.4 1차 목데이터 테스트(50개·실제 시세·GPT) 섹션 + 판단 로직 변경 이력(매크로 표→감점 · 매도→보류 흡수 · 문턱 빡센2) 섹션 추가 · v2.5 테스트 결과 버전별 표 명확화 + v3 최종 판정 반영 · v2.6 테스트 결과 표를 v1↔v3 비교로 간소화(중간 v2 제외) · v2.7 테스트·변경이력을 목차 10·11번으로 정식 편입(기존 10~14 → 12~16 재번호) · v2.8 문서 전반의 옛 v1 수치를 v3로 통일(문턱 0.70/0.55/0.50/0.60 · min_conviction 6.0 · 교차확인 confirmed_score 비례 · 매크로 표 제거→3신호 consensus 0~3 · 판단 10단계) · v2.9 conviction 스케일 0~10 → 0~1 소수3자리 통일(min_conviction 0.6 · 매크로 감점·교차확인 보너스 ÷10 · 모든 스코어 0~1) · v3.0 「Critic 연결·트리거」 섹션 추가(폴링 대신 트리거 · 현재 orchestrator 직접호출 · 2차 이벤트 확장) 목차 15번</span><br />
     팀 여름이었다 · 문의는 은미에게 직접 or 팀 채널로!
   </div>
 </footer>
