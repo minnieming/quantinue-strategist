@@ -357,11 +357,13 @@
     <a href="#s07"><span class="num">07</span>ERD</a>
     <a href="#s08"><span class="num">08</span>판단 문턱 POLICY</a>
     <a href="#s09"><span class="num">09</span>판단 순서 11단계</a>
-    <a href="#s10"><span class="num">10</span>처리 로직·이유</a>
-    <a href="#s11"><span class="num">11</span>코드 vs LLM</a>
-    <a href="#s12"><span class="num">12</span>Critic 전달</a>
-    <a href="#s13"><span class="num">13</span>팀 확인 요청</a>
-    <a href="#s14"><span class="num">14</span>다음 할 일</a>
+    <a href="#stest"><span class="num">10</span>1차 목데이터 테스트</a>
+    <a href="#schangelog"><span class="num">11</span>판단 로직 변경 이력</a>
+    <a href="#s10"><span class="num">12</span>처리 로직·이유</a>
+    <a href="#s11"><span class="num">13</span>코드 vs LLM</a>
+    <a href="#s12"><span class="num">14</span>Critic 전달</a>
+    <a href="#s13"><span class="num">15</span>팀 확인 요청</a>
+    <a href="#s14"><span class="num">16</span>다음 할 일</a>
   </nav>
 </aside>
 
@@ -370,8 +372,8 @@
     <div class="badge-row">
       <span class="badge gold">팀 여름이었다</span>
       <span class="badge green">⑤ Strategist 담당</span>
-      <span class="badge">v2.6 · 2026-07-08</span>
-      <span class="badge">🕒 최종 수정 2026-07-08 14:52 KST</span>
+      <span class="badge">v2.7 · 2026-07-08</span>
+      <span class="badge">🕒 최종 수정 2026-07-08 14:57 KST</span>
     </div>
     <h1>Quantinue<br /><span class="grad">Strategist 파트 진행상황</span></h1>
     <p class="subtitle">
@@ -1011,7 +1013,7 @@ cross_source_confirmed = 1  →  확신 <span class="s">+0.15</span> 힌트</pre
 <!-- ───────── 1차 목데이터 테스트 ───────── -->
 <section>
   <div class="wrap">
-    <div class="sec-label">Test · 검증</div>
+    <div class="sec-label" id="stest">Test · 검증</div>
     <h2>1차 목데이터 테스트 (2026-07-08)</h2>
     <p class="sec-desc">공격형 기준이 실제로 종목을 얼마나 걸러내는지 <b>목(가짜) 신호 50개 + 실제 시세</b>로 점검했어. 기준을 "빡세게" 조정한 근거야.</p>
 
@@ -1064,7 +1066,7 @@ cross_source_confirmed = 1  →  확신 <span class="s">+0.15</span> 힌트</pre
 <!-- ───────── 판단 로직 변경 이력 ───────── -->
 <section>
   <div class="wrap">
-    <div class="sec-label">Changelog · 판단 로직 변경</div>
+    <div class="sec-label" id="schangelog">Changelog · 판단 로직 변경</div>
     <h2>판단 로직 변경 이력 (버전별)</h2>
     <p class="sec-desc">Strategist가 "어떻게 판단하는지"를 바꿀 때마다 <b>기존 → 상황·생각 → 변경 → 기대값 → 테스트 결과</b> 순으로 남겨. 왜 그렇게 바꿨는지 근거를 팀 누구나 볼 수 있게.</p>
 
@@ -1563,8 +1565,8 @@ side(매수/매도/보류) + conviction(0~10) + rationale + key_risk</pre>
 
 <footer>
   <div class="wrap">
-    <b>Quantinue — Strategist</b> · 작성 이은미 · v2.6 · 최종 수정 2026-07-08 14:52 KST<br />
-    <span style="opacity:.7">변경 이력 — v1.0 최초 작성 · v1.1 신호 JSON 예시 + Critic payload 상세 · v1.2 요청 스펙(인터페이스 계약) 추가 + 수정시간 표기 · v1.3 테이블명 tb_ 접두사 + category→sector · v1.4 처리 로직 상세(기준+이유+Python) 추가 · v1.5 내 쪽 ERD(테이블 6개 + 관계) 추가 · v1.6 tb_strategist_signals 컬럼 사전 + 데이터타입 설명 추가 · v1.7 판단 구조(코드 게이트+LLM 샌드위치) + conviction 채점 방식 설명 추가 · v1.8 라이트 테마 전환 + 왼쪽 목차 메뉴 + 섹션 번호 · v1.9 매크로 거부권→conviction 감점 전환 + Critic 역할경계(bear_case 제외) 정리 · v2.0 투자유형 공격형 단일화(안정형 제거) + 수치 선정 이유·기대값 설명 추가 · v2.1 공격형 프리셋 3종(A신중/B표준/C초공격) 비교표 + 다크모드 토글 추가 · v2.2 코드↔문서 검증 반영(교차확인=뉴스팀 입력·읽기전용 명시, 무조건 차단은 hard_block뿐 명확화) · v2.3 실시간 스냅샷 컬럼(알파카 배치조회: current_price·day_high/low·volume·turnover·high_52w/low_52w) 추가 + 50개 순회·순위매김 명시 + 매수만 Critic/보류 저장 분기 + min_conviction 8.0 잔재 정리 + 포트폴리오 링크 제거(개인문서 배포 제외) · v2.4 1차 목데이터 테스트(50개·실제 시세·GPT) 섹션 + 판단 로직 변경 이력(매크로 표→감점 · 매도→보류 흡수 · 문턱 빡센2) 섹션 추가 · v2.5 테스트 결과 버전별 표 명확화 + v3 최종 판정 반영 · v2.6 테스트 결과 표를 v1↔v3 비교로 간소화(중간 v2 제외)</span><br />
+    <b>Quantinue — Strategist</b> · 작성 이은미 · v2.7 · 최종 수정 2026-07-08 14:57 KST<br />
+    <span style="opacity:.7">변경 이력 — v1.0 최초 작성 · v1.1 신호 JSON 예시 + Critic payload 상세 · v1.2 요청 스펙(인터페이스 계약) 추가 + 수정시간 표기 · v1.3 테이블명 tb_ 접두사 + category→sector · v1.4 처리 로직 상세(기준+이유+Python) 추가 · v1.5 내 쪽 ERD(테이블 6개 + 관계) 추가 · v1.6 tb_strategist_signals 컬럼 사전 + 데이터타입 설명 추가 · v1.7 판단 구조(코드 게이트+LLM 샌드위치) + conviction 채점 방식 설명 추가 · v1.8 라이트 테마 전환 + 왼쪽 목차 메뉴 + 섹션 번호 · v1.9 매크로 거부권→conviction 감점 전환 + Critic 역할경계(bear_case 제외) 정리 · v2.0 투자유형 공격형 단일화(안정형 제거) + 수치 선정 이유·기대값 설명 추가 · v2.1 공격형 프리셋 3종(A신중/B표준/C초공격) 비교표 + 다크모드 토글 추가 · v2.2 코드↔문서 검증 반영(교차확인=뉴스팀 입력·읽기전용 명시, 무조건 차단은 hard_block뿐 명확화) · v2.3 실시간 스냅샷 컬럼(알파카 배치조회: current_price·day_high/low·volume·turnover·high_52w/low_52w) 추가 + 50개 순회·순위매김 명시 + 매수만 Critic/보류 저장 분기 + min_conviction 8.0 잔재 정리 + 포트폴리오 링크 제거(개인문서 배포 제외) · v2.4 1차 목데이터 테스트(50개·실제 시세·GPT) 섹션 + 판단 로직 변경 이력(매크로 표→감점 · 매도→보류 흡수 · 문턱 빡센2) 섹션 추가 · v2.5 테스트 결과 버전별 표 명확화 + v3 최종 판정 반영 · v2.6 테스트 결과 표를 v1↔v3 비교로 간소화(중간 v2 제외) · v2.7 테스트·변경이력을 목차 10·11번으로 정식 편입(기존 10~14 → 12~16 재번호)</span><br />
     팀 여름이었다 · 문의는 은미에게 직접 or 팀 채널로!
   </div>
 </footer>
