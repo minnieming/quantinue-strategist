@@ -370,8 +370,8 @@
     <div class="badge-row">
       <span class="badge gold">팀 여름이었다</span>
       <span class="badge green">⑤ Strategist 담당</span>
-      <span class="badge">v2.3 · 2026-07-08</span>
-      <span class="badge">🕒 최종 수정 2026-07-08 11:49 KST</span>
+      <span class="badge">v2.4 · 2026-07-08</span>
+      <span class="badge">🕒 최종 수정 2026-07-08 14:29 KST</span>
     </div>
     <h1>Quantinue<br /><span class="grad">Strategist 파트 진행상황</span></h1>
     <p class="subtitle">
@@ -1008,6 +1008,101 @@ cross_source_confirmed = 1  →  확신 <span class="s">+0.15</span> 힌트</pre
   </div>
 </section>
 
+<!-- ───────── 1차 목데이터 테스트 ───────── -->
+<section>
+  <div class="wrap">
+    <div class="sec-label">Test · 검증</div>
+    <h2>1차 목데이터 테스트 (2026-07-08)</h2>
+    <p class="sec-desc">공격형 기준이 실제로 종목을 얼마나 걸러내는지 <b>목(가짜) 신호 50개 + 실제 시세</b>로 점검했어. 기준을 "빡세게" 조정한 근거야.</p>
+
+    <h3 class="sub-h">① 조건</h3>
+    <div class="tbl-scroll"><table>
+      <tbody>
+        <tr><td style="width:110px"><b>대상</b></td><td>목데이터 <b>50개 종목</b> (미국 대형주)</td></tr>
+        <tr><td><b>기준</b></td><td>공격형 <b>v2 "빡센2"</b> — 합의 3표 · sentiment 0.70 · grade 0.55 · confirmed 0.50 · ml 0.60 · 최소확신 6.0</td></tr>
+        <tr><td><b>시세</b></td><td>알파카 실시간 <b>IEX(무료)</b> 50개 배치 조회</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3 class="sub-h">② 진행</h3>
+    <div class="flow">
+      <div class="flow-item"><div><div class="t">전처리(코드)</div><div class="d">하드블록·표세기·합의로 매수 부합 판정 — LLM 없이 무료</div></div></div>
+      <div class="flow-item"><div><div class="t">실시간 시세</div><div class="d">알파카 IEX로 50개 현재가·거래량 배치 조회(무료)</div></div></div>
+      <div class="flow-item gpt"><div><div class="t">GPT 판단</div><div class="d">부합 상위 3개만 실제 GPT(gpt-4o-mini)로 최종 확신·근거 생성</div></div></div>
+    </div>
+
+    <h3 class="sub-h">③ 결과</h3>
+    <div class="grid c2">
+      <div class="card">
+        <h3>기준 강도별 매수 부합</h3>
+        <div class="tbl-scroll"><table>
+          <thead><tr><th>기준</th><th>매수 부합</th></tr></thead>
+          <tbody>
+            <tr><td>v1 B표준 (합의2)</td><td>26개 (52%)</td></tr>
+            <tr><td><b>v2 빡센2 (합의3+문턱↑)</b></td><td><b>12개 (24%)</b></td></tr>
+          </tbody>
+        </table></div>
+        <p class="dim" style="margin-top:8px">합의 수만 올리면 26→24로 거의 안 줆(매크로 공통표 탓). <b>문턱까지 올려야</b> 실효.</p>
+      </div>
+      <div class="card">
+        <h3>v2 최종 판정 (50개)</h3>
+        <div class="tbl-scroll"><table>
+          <tbody>
+            <tr><td>✅ 매수</td><td><b>12개</b></td></tr>
+            <tr><td>⏸ 보류</td><td>35개</td></tr>
+            <tr><td>🔻 매도</td><td>판정 없음 (1차: 보류 흡수)</td></tr>
+            <tr><td>⛔ 하드블록</td><td>3개</td></tr>
+          </tbody>
+        </table></div>
+        <p class="dim" style="margin-top:8px">GPT 상위3: <b>MSFT(5.5) &gt; NVDA(5.0) &gt; GOOGL(5.0)</b></p>
+      </div>
+    </div>
+    <p class="pipe-note" style="margin-top:12px;">📌 목데이터라 절대 수치보다 <b>"기준 강도에 따른 변화"</b>가 포인트. 실데이터 연결 시 재측정 예정.</p>
+  </div>
+</section>
+
+<!-- ───────── 판단 로직 변경 이력 ───────── -->
+<section>
+  <div class="wrap">
+    <div class="sec-label">Changelog · 판단 로직 변경</div>
+    <h2>판단 로직 변경 이력 (버전별)</h2>
+    <p class="sec-desc">Strategist가 "어떻게 판단하는지"를 바꿀 때마다 <b>기존 → 상황·생각 → 변경 → 기대값 → 테스트 결과</b> 순으로 남겨. 왜 그렇게 바꿨는지 근거를 팀 누구나 볼 수 있게.</p>
+
+    <div class="card" style="margin-bottom:16px">
+      <h3>① 매크로: 표(vote) → 감점(penalty)만 <span class="dim">· 2026-07-08</span></h3>
+      <div class="tbl-scroll"><table><tbody>
+        <tr><td style="width:96px"><b>기존</b></td><td>매크로가 4신호 중 하나로 표(+1/-1)를 던짐</td></tr>
+        <tr><td><b>상황·생각</b></td><td>매크로는 시장 전체라 50개 종목에 <b>공통 +1</b> → 종목 변별을 오염. 테스트에서 매수 부합 과다(52%), 매도가 0(악재도 매크로 +1에 상쇄)으로 나옴</td></tr>
+        <tr><td><b>변경</b></td><td>매크로를 종목 표에서 <b>제외</b>, risk_off <b>감점</b>으로만 반영. 합의는 공시·뉴스·기술 3개 중 2개</td></tr>
+        <tr><td><b>기대값</b></td><td>종목 신호로만 판단 → 변별력↑. 시장 위험은 감점이 '강한 종목만 생존'시켜 전체 조절</td></tr>
+        <tr><td><b>테스트</b></td><td>목데이터 50개 매수 12개(순수 신호 기반). 자동 테스트 27개 통과</td></tr>
+      </tbody></table></div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <h3>② 매도(sell) → 보류 흡수 (1차 MVP) <span class="dim">· 2026-07-08</span></h3>
+      <div class="tbl-scroll"><table><tbody>
+        <tr><td style="width:96px"><b>기존</b></td><td>매수/매도/보류 3종 판정</td></tr>
+        <tr><td><b>상황·생각</b></td><td>1차 MVP는 매수만(능동 매도는 2차, 청산은 손절 자동) → 매도 판정이 불필요</td></tr>
+        <tr><td><b>변경</b></td><td>side는 <b>매수/보류 2종</b>. 악재는 '안 삼=보류'. sell은 2차용 스키마에만 남김</td></tr>
+        <tr><td><b>기대값</b></td><td>1차 역할('살 종목 고르기')에 집중 — 단순·명확</td></tr>
+        <tr><td><b>테스트</b></td><td>악재 방향 8개 종목 → 전부 보류로 흡수 확인</td></tr>
+      </tbody></table></div>
+    </div>
+
+    <div class="card">
+      <h3>③ 판단 문턱 빡세게 (v1 B표준 → v2 빡센2) <span class="dim">· 2026-07-08</span></h3>
+      <div class="tbl-scroll"><table><tbody>
+        <tr><td style="width:96px"><b>기존</b></td><td>sentiment 0.60 / grade 0.50 / ml 0.50 / 합의 2 / 최소확신 5.0</td></tr>
+        <tr><td><b>상황·생각</b></td><td>1차 테스트 매수 부합 26개(52%)로 과다. 합의 수만 올리면(2→3) 26→24로 거의 안 줆(매크로 공통표 탓)</td></tr>
+        <tr><td><b>변경</b></td><td>sentiment 0.70 / grade 0.55 / confirmed 0.50 / ml 0.60 / 최소확신 6.0 (합의+문턱 함께↑)</td></tr>
+        <tr><td><b>기대값</b></td><td>약한 신호를 걸러 매수 후보를 절반 이하로 선별</td></tr>
+        <tr><td><b>테스트</b></td><td>매수 26 → 12개(24%)</td></tr>
+      </tbody></table></div>
+    </div>
+  </div>
+</section>
+
 <!-- ───────── 처리 로직 상세 (기준 + 이유) ───────── -->
 <section>
   <div class="wrap">
@@ -1468,8 +1563,8 @@ side(매수/매도/보류) + conviction(0~10) + rationale + key_risk</pre>
 
 <footer>
   <div class="wrap">
-    <b>Quantinue — Strategist</b> · 작성 이은미 · v2.3 · 최종 수정 2026-07-08 11:49 KST<br />
-    <span style="opacity:.7">변경 이력 — v1.0 최초 작성 · v1.1 신호 JSON 예시 + Critic payload 상세 · v1.2 요청 스펙(인터페이스 계약) 추가 + 수정시간 표기 · v1.3 테이블명 tb_ 접두사 + category→sector · v1.4 처리 로직 상세(기준+이유+Python) 추가 · v1.5 내 쪽 ERD(테이블 6개 + 관계) 추가 · v1.6 tb_strategist_signals 컬럼 사전 + 데이터타입 설명 추가 · v1.7 판단 구조(코드 게이트+LLM 샌드위치) + conviction 채점 방식 설명 추가 · v1.8 라이트 테마 전환 + 왼쪽 목차 메뉴 + 섹션 번호 · v1.9 매크로 거부권→conviction 감점 전환 + Critic 역할경계(bear_case 제외) 정리 · v2.0 투자유형 공격형 단일화(안정형 제거) + 수치 선정 이유·기대값 설명 추가 · v2.1 공격형 프리셋 3종(A신중/B표준/C초공격) 비교표 + 다크모드 토글 추가 · v2.2 코드↔문서 검증 반영(교차확인=뉴스팀 입력·읽기전용 명시, 무조건 차단은 hard_block뿐 명확화) · v2.3 실시간 스냅샷 컬럼(알파카 배치조회: current_price·day_high/low·volume·turnover·high_52w/low_52w) 추가 + 50개 순회·순위매김 명시 + 매수만 Critic/보류 저장 분기 + min_conviction 8.0 잔재 정리 + 포트폴리오 링크 제거(개인문서 배포 제외)</span><br />
+    <b>Quantinue — Strategist</b> · 작성 이은미 · v2.4 · 최종 수정 2026-07-08 14:29 KST<br />
+    <span style="opacity:.7">변경 이력 — v1.0 최초 작성 · v1.1 신호 JSON 예시 + Critic payload 상세 · v1.2 요청 스펙(인터페이스 계약) 추가 + 수정시간 표기 · v1.3 테이블명 tb_ 접두사 + category→sector · v1.4 처리 로직 상세(기준+이유+Python) 추가 · v1.5 내 쪽 ERD(테이블 6개 + 관계) 추가 · v1.6 tb_strategist_signals 컬럼 사전 + 데이터타입 설명 추가 · v1.7 판단 구조(코드 게이트+LLM 샌드위치) + conviction 채점 방식 설명 추가 · v1.8 라이트 테마 전환 + 왼쪽 목차 메뉴 + 섹션 번호 · v1.9 매크로 거부권→conviction 감점 전환 + Critic 역할경계(bear_case 제외) 정리 · v2.0 투자유형 공격형 단일화(안정형 제거) + 수치 선정 이유·기대값 설명 추가 · v2.1 공격형 프리셋 3종(A신중/B표준/C초공격) 비교표 + 다크모드 토글 추가 · v2.2 코드↔문서 검증 반영(교차확인=뉴스팀 입력·읽기전용 명시, 무조건 차단은 hard_block뿐 명확화) · v2.3 실시간 스냅샷 컬럼(알파카 배치조회: current_price·day_high/low·volume·turnover·high_52w/low_52w) 추가 + 50개 순회·순위매김 명시 + 매수만 Critic/보류 저장 분기 + min_conviction 8.0 잔재 정리 + 포트폴리오 링크 제거(개인문서 배포 제외) · v2.4 1차 목데이터 테스트(50개·실제 시세·GPT) 섹션 + 판단 로직 변경 이력(매크로 표→감점 · 매도→보류 흡수 · 문턱 빡센2) 섹션 추가</span><br />
     팀 여름이었다 · 문의는 은미에게 직접 or 팀 채널로!
   </div>
 </footer>
