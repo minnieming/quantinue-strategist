@@ -52,7 +52,7 @@
   <div class="badges">
     <span class="badge">팀 여름이었다 · ⑤ Strategist</span>
     <span class="badge">작성 이은미</span>
-    <span class="badge">v1.0 · 2026-07-08 20:45 KST</span>
+    <span class="badge">v1.1 · 2026-07-09 09:42 KST</span>
   </div>
   <h1>🎨 Critic에게 보내는 값 — 유치원생도 아는 설명서</h1>
   <p class="lead">Strategist(전략가)가 판단을 끝내면, 그 결과를 <b>한 상자(JSON)</b>에 담아 다음 친구 <b>Critic(반박이)</b>에게 줘요.
@@ -68,7 +68,54 @@
   <div class="lg"><span class="dot" style="background:var(--sys)"></span><b>⚙️ 시스템/설정</b><br />번호표·시각 같은 자동 값</div>
 </div>
 
-<h2>📦 상자 속 칸(필드) 하나하나</h2>
+<h2 style="border-left-color:var(--input)">🗺️ 먼저: 내 ERD — 어디서 읽고, 어디에 쓸까?</h2>
+<p class="lead"><b>ERD</b> = 상자(테이블)들이 있고 서로 어떻게 연결되는지 그린 <b>지도</b>예요. 나(Strategist)는 <b>5개 상자에서 읽고(SELECT) → 판단 → 1개 상자에 써요(INSERT)</b>.</p>
+
+<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;margin:16px 0;">
+  <div style="background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:12px 16px;text-align:center;font-size:13.5px;">📥 <b>읽는 상자 5개</b><br /><span style="color:var(--dim)">공시·뉴스·기술·매크로·과거기록</span></div>
+  <div style="font-size:22px;">▶</div>
+  <div style="background:#ede9fe;border:1px solid #ddd6fe;border-radius:12px;padding:12px 16px;text-align:center;font-size:13.5px;">⑤ <b>나 (Strategist)</b><br /><span style="color:var(--dim)">판단</span></div>
+  <div style="font-size:22px;">▶</div>
+  <div style="background:#dcfce7;border:1px solid #bbf7d0;border-radius:12px;padding:12px 16px;text-align:center;font-size:13.5px;">⭐ <b>쓰는 상자 1개</b><br /><span style="color:var(--dim)">내 판단 결과</span></div>
+</div>
+
+<h3 style="margin:18px 0 8px;font-size:16px;">📥 내가 읽는 상자 5개 (다른 팀이 채워줌)</h3>
+<div class="grid">
+  <div class="card input">
+    <span class="fname">tb_disclosure</span> <span style="color:var(--dim)">공시 · 정보분석팀(정창욱)</span>
+    <p class="kid">📄 <b>회사 공식 발표.</b> 실적·인수·상장폐지 같은 공식 문서.</p>
+    <p class="why"><b>내가 읽는 칸:</b> sentiment_score(호재/악재 강도) · importance(중요도) · hard_block(위험차단) · event_type · reason</p>
+  </div>
+  <div class="card input">
+    <span class="fname">tb_news</span> <span style="color:var(--dim)">뉴스 · 정보분석팀(정창욱)</span>
+    <p class="kid">📰 <b>언론 기사.</b> "엔비디아 실적 대박" 같은 뉴스들을 모아 대표 1개로 요약.</p>
+    <p class="why"><b>내가 읽는 칸:</b> sentiment_score · grade_score(출처등급) · source_trust(신뢰) · top_evidence(근거기사) · hard_block <br /><span style="color:var(--price)">⚠️ confirmed_score · cross_source_confirmed는 정보분석팀이 삭제 → 내 코드도 재설계 예정</span></p>
+  </div>
+  <div class="card input">
+    <span class="fname">tb_technical</span> <span style="color:var(--dim)">기술 · 김지현</span>
+    <p class="kid">📈 <b>차트·추세.</b> 오르는 중인지, AI가 본 상승확률.</p>
+    <p class="why"><b>내가 읽는 칸:</b> trend(추세) · ml_prob_up(상승확률) · rsi · macd</p>
+  </div>
+  <div class="card input">
+    <span class="fname">tb_macro</span> <span style="color:var(--dim)">매크로 · 김지현</span>
+    <p class="kid">🌐 <b>시장 전체 날씨.</b> 맑음(risk_on)/태풍(risk_off). 종목 상관없이 공통이에요.</p>
+    <p class="why"><b>내가 읽는 칸:</b> regime(날씨) · risk_score(위험도 0~100) · reason</p>
+  </div>
+  <div class="card input">
+    <span class="fname">tb_memory_entries</span> <span style="color:var(--dim)">과거기록 · 문성혁</span>
+    <p class="kid">🧠 <b>예전 판단·교훈.</b> "이 종목 저번에 이랬지" 같은 기억.</p>
+    <p class="why"><b>내가 읽는 칸:</b> side · conviction · outcome(결과) · lesson(교훈) — 종목별 최근 5개</p>
+  </div>
+</div>
+
+<h3 style="margin:20px 0 8px;font-size:16px;">⭐ 내가 쓰는 상자 1개 = 아래 「Critic에 보내는 값」!</h3>
+<div class="card" style="border-left-color:var(--code)">
+  <span class="fname">tb_strategist_signals</span> <span style="color:var(--dim)">내 판단 결과 · 내 소유(내가 씀)</span>
+  <p class="kid">⭐ <b>내가 판단한 결과를 저장하는 상자.</b> 이 상자 한 줄이 <b>바로 Critic에게 보내는 값</b>이에요! 그래서 아래에서 이 상자의 칸들을 하나씩 설명해요 👇</p>
+  <p class="why"><b>관계:</b> 읽는 상자 5개는 <code>ticker</code>(종목)+<code>cycle_id</code>(회의번호)로 "같은 종목·같은 회의" 신호를 찾아 읽어요. 판단 후 이 상자에 1줄 저장(append).</p>
+</div>
+
+<h2>📦 내 결과 상자(tb_strategist_signals) 속 칸 = Critic에 보내는 값</h2>
 <div class="grid">
 
   <div class="card input">
@@ -223,7 +270,7 @@
 </div>
 
 <footer>
-  Quantinue — Strategist · Critic Payload 설명서 · 작성 이은미 · v1.0 · 2026-07-08 20:45 KST
+  Quantinue — Strategist · ERD + Critic Payload 설명서 · 작성 이은미 · v1.1 · 2026-07-09 09:42 KST
 </footer>
 
 </div>
