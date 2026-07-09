@@ -56,7 +56,7 @@
   <div class="badges">
     <span class="badge">팀 여름이었다 · ⑤ Strategist</span>
     <span class="badge">작성 이은미</span>
-    <span class="badge">v1.2 · 2026-07-09 09:55 KST</span>
+    <span class="badge">v1.3 · 2026-07-09 10:22 KST</span>
   </div>
   <h1>🎨 Critic에게 보내는 값 — 유치원생도 아는 설명서</h1>
   <p class="lead">Strategist(전략가)가 판단을 끝내면, 그 결과를 <b>한 상자(JSON)</b>에 담아 다음 친구 <b>Critic(반박이)</b>에게 줘요.
@@ -186,7 +186,7 @@
     <tr><td>summary · bull_case · key_risk · risk_rebuttal · counter_scenarios · evidence</td><td>✅</td><td>✅</td><td>🗣️ Critic 설득용</td></tr>
     <tr><td>sizing_hint</td><td>✅</td><td>✅</td><td>💰 PM 힌트</td></tr>
     <tr><td>current_price · day_high/low · volume · turnover · high_52w/low_52w</td><td>✅</td><td>✅</td><td>📸 기록·회고용</td></tr>
-    <tr><td>cycle_id · ticker · inv_type · persona_notes · created_at</td><td>✅</td><td>✅</td><td>⚙️ 식별·시각</td></tr>
+    <tr><td>cycle_id · ticker · inv_type · created_at</td><td>✅</td><td>✅</td><td>⚙️ 식별·시각</td></tr>
   </tbody>
 </table>
 <p class="why">→ <b>저장값과 Critic값은 완전히 같아요.</b> 다만 Critic은 주로 <b>🗣️ 설득용</b> 칸을 보고 반박하고, <b>📸 기록용</b> 칸은 나중에 회고할 때 더 쓰여요.</p>
@@ -282,14 +282,7 @@
     <span class="fname">sizing_hint</span><span class="src s-code">🧮 코드</span>
     <p class="kid">💡 <b>"얼마나 살까?" 힌트.</b> 근데 <b>진짜 결정은 PM 형</b>이 해요.</p>
     <p class="why"><b>어디서:</b> 코드가 확신도로 계산. <b>왜:</b> Strategist는 <b>순위·제안</b>만, 실제 금액은 잔고 아는 PM 몫이라서요.</p>
-    <div class="ex">"sizing_hint": { "suggested_weight": 0.0425, "note": "PM decides final size by cash and risk" }</div>
-  </div>
-
-  <div class="card sys">
-    <span class="fname">persona_notes</span><span class="src s-sys">⚙️ 2차</span>
-    <p class="kid">🎩 <b>투자 거장 관점.</b> 지금은 비어있어요(2차에 추가).</p>
-    <p class="why"><b>어디서:</b> 아직 없음. <b>왜:</b> 1차는 단순하게, 거장 페르소나는 나중에.</p>
-    <div class="ex">"persona_notes": null</div>
+    <div class="ex">"sizing_hint": { "suggested_weight": 0.03, "conviction": 0.85, "max_weight_cap": 0.05, "stop_loss_hint": -0.05, "note": "최종 크기는 PM이 결정" }</div>
   </div>
 
   <div class="card price">
@@ -317,26 +310,45 @@
 
 <h2>🎁 전체 예시 — NVDA 상자 하나 (JSON)</h2>
 <pre>{
-  <span class="k">"cycle_id"</span>: <span class="n">123</span>,              <span class="c">// ⚙️ 판단 묶음 번호</span>
-  <span class="k">"ticker"</span>: <span class="s">"NVDA"</span>,            <span class="c">// 📥 종목 이름표(코드가 확정)</span>
-  <span class="k">"inv_type"</span>: <span class="s">"aggressive"</span>,   <span class="c">// ⚙️ 공격형</span>
-  <span class="k">"side"</span>: <span class="s">"buy"</span>,               <span class="c">// 🤖 사자!</span>
-  <span class="k">"conviction"</span>: <span class="n">0.850</span>,        <span class="c">// 🤖+🧮 확신 0~1 (소수3자리)</span>
-  <span class="k">"signal_consensus"</span>: <span class="n">3</span>,       <span class="c">// 🧮 찬성 3/3</span>
-  <span class="k">"summary"</span>: <span class="s">"3개 신호가 매수 방향"</span>,
-  <span class="k">"bull_case"</span>: <span class="s">"실적 서프라이즈 + 데이터센터 매출 급증"</span>,
-  <span class="k">"key_risk"</span>: <span class="s">"기대가 과다 → 실적 부진 시 급락"</span>,
-  <span class="k">"risk_rebuttal"</span>: <span class="s">"가이던스·기술 상승세가 뒷받침"</span>,
-  <span class="k">"counter_scenarios"</span>: [<span class="s">"실적 부진 시 -10% 손절"</span>],
-  <span class="k">"evidence"</span>: { <span class="k">"buy_votes"</span>:<span class="n">3</span>, <span class="k">"cross_confirm_bonus"</span>:<span class="n">0.02</span>, <span class="k">"macro_penalty"</span>:<span class="n">0</span>, <span class="k">"hard_block"</span>:<span class="n">0</span> },  <span class="c">// 🧮 증거 숫자</span>
-  <span class="k">"sizing_hint"</span>: { <span class="k">"suggested_weight"</span>:<span class="n">0.0425</span>, <span class="k">"note"</span>:<span class="s">"PM decides final size by cash and risk"</span> },
-  <span class="k">"persona_notes"</span>: <span class="n">null</span>,       <span class="c">// ⚙️ 2차</span>
-  <span class="k">"current_price"</span>: <span class="n">196.97</span>,     <span class="c">// ⚡ 판단 순간 시세</span>
+  <span class="c">// ─── ① 기본 결정 (숫자·열쇠 FK) ───</span>
+  <span class="k">"cycle_id"</span>: <span class="n">202607090930</span>,   <span class="c">// 🔗FK 판단 회의 번호(날짜+시각) — 원본 찾는 열쇠</span>
+  <span class="k">"ticker"</span>: <span class="s">"NVDA"</span>,             <span class="c">// 🔗FK 종목 — 원본 찾는 열쇠 (이 2개로 공시·뉴스 5개 다 찾음)</span>
+  <span class="k">"inv_type"</span>: <span class="s">"aggressive"</span>,    <span class="c">// 투자유형(공격형)</span>
+  <span class="k">"side"</span>: <span class="s">"buy"</span>,               <span class="c">// 매수/보류 (1차는 매도 없음)</span>
+  <span class="k">"conviction"</span>: <span class="n">0.850</span>,        <span class="c">// 확신 0~1 (소수3자리)</span>
+  <span class="k">"signal_consensus"</span>: <span class="n">3</span>,       <span class="c">// 공시·뉴스·기술 3개 매수 (매크로 표 제외)</span>
+
+  <span class="c">// ─── ② 설득용 요약 (LLM 텍스트) ───</span>
+  <span class="k">"summary"</span>: <span class="s">"3개 신호 전원 매수 방향. 공시·뉴스·기술 일치."</span>,
+  <span class="k">"bull_case"</span>: <span class="s">"① 대형 인수 발표 ② 실적 교차확인 ③ RSI 반등 ④ 시장 risk-on"</span>,
+
+  <span class="c">// ─── ③ 반박 대비 (Critic 선제 방어) ───</span>
+  <span class="k">"key_risk"</span>: <span class="s">"인수 프리미엄 과다 → 단기 조정 가능"</span>,
+  <span class="k">"risk_rebuttal"</span>: <span class="s">"importance 0.8 반영, hard_block 없음, 기준(0.6) 충족(0.85)"</span>,
+  <span class="k">"counter_scenarios"</span>: [<span class="s">"인수 무산 시 -5% 손절"</span>, <span class="s">"risk-off 전환 시 축소"</span>],
+
+  <span class="c">// ─── ④ 신뢰 근거 (숫자 증거) ───</span>
+  <span class="k">"evidence"</span>: { <span class="k">"buy_votes"</span>:<span class="n">3</span>, <span class="k">"cross_confirm_bonus"</span>:<span class="n">0.02</span>, <span class="k">"hard_block"</span>:<span class="n">0</span>, <span class="k">"macro_penalty"</span>:<span class="n">0</span> },
+
+  <span class="c">// ─── ⑤ PM용 크기 힌트 (제안일 뿐, 최종은 PM) ───</span>
+  <span class="k">"sizing_hint"</span>: {
+    <span class="k">"suggested_weight"</span>: <span class="n">0.03</span>,    <span class="c">// 제안 비중 3% (PM이 참고만)</span>
+    <span class="k">"conviction"</span>: <span class="n">0.85</span>,          <span class="c">// 이 확신에 근거</span>
+    <span class="k">"max_weight_cap"</span>: <span class="n">0.05</span>,      <span class="c">// 종목당 상한 5% 가이드</span>
+    <span class="k">"stop_loss_hint"</span>: <span class="n">-0.05</span>,     <span class="c">// 손절 제안 -5%</span>
+    <span class="k">"note"</span>: <span class="s">"최종 크기는 PM이 결정. 이건 제안값."</span>
+  },
+
+  <span class="c">// ─── ⑥ 실시간 시세 (알파카 · 판단 순간) ───</span>
+  <span class="k">"current_price"</span>: <span class="n">196.97</span>,
   <span class="k">"day_high"</span>: <span class="n">198.39</span>, <span class="k">"day_low"</span>: <span class="n">191.15</span>,
   <span class="k">"volume"</span>: <span class="n">4767383</span>, <span class="k">"turnover"</span>: <span class="n">929608229</span>,
   <span class="k">"high_52w"</span>: <span class="n">140</span>, <span class="k">"low_52w"</span>: <span class="n">88</span>,
-  <span class="k">"created_at"</span>: <span class="s">"2026-07-08T11:30:00Z"</span>  <span class="c">// ⚙️ 저장 시각</span>
+
+  <span class="c">// ─── ⑦ 저장 시각 ───</span>
+  <span class="k">"created_at"</span>: <span class="s">"2026-07-09T09:31:00Z"</span>
 }</pre>
+<p class="why">🔑 <b>cycle_id + ticker</b> 이 <b>2개(FK)</b>만 저장하면, 공시·뉴스·기술·매크로·과거 <b>5개 원본을 다 찾아요.</b> 원본은 복사 안 해요.</p>
 
 <h2>🧠 딱 3줄 정리</h2>
 <div class="card">
@@ -346,7 +358,7 @@
 </div>
 
 <footer>
-  Quantinue — Strategist · ERD + Critic Payload 설명서 · 작성 이은미 · v1.2 · 2026-07-09 09:55 KST
+  Quantinue — Strategist · ERD + Critic Payload 설명서 · 작성 이은미 · v1.3 · 2026-07-09 10:22 KST
 </footer>
 
 </div>
