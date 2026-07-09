@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Quantinue · Critic에 보내는 값 — 유치원생 설명서</title>
+<style>
+  :root{
+    --bg:#f7f8fa; --card:#fff; --ink:#1f2430; --dim:#6b7280; --line:#e5e7eb;
+    --gpt:#8b5cf6; --code:#16a34a; --input:#2563eb; --price:#f59e0b; --sys:#64748b;
+    --soft:#eef2ff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    line-height:1.7;}
+  .wrap{max-width:1000px;margin:0 auto;padding:28px 20px 80px;}
+  header{background:linear-gradient(135deg,#eef2ff,#f7f8fa);border:1px solid var(--line);
+    border-radius:18px;padding:26px 24px;margin-bottom:24px;}
+  header h1{margin:.2em 0;font-size:26px;}
+  .badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+  .badge{background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:12.5px;color:var(--dim);}
+  .lead{font-size:15px;color:var(--dim);}
+  h2{margin:34px 0 12px;font-size:20px;border-left:5px solid var(--gpt);padding-left:10px;}
+  .legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:14px 0 8px;}
+  .lg{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13.5px;}
+  .dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px;vertical-align:middle;}
+  .grid{display:grid;grid-template-columns:1fr;gap:14px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;
+    border-left:6px solid var(--sys);}
+  .card.gpt{border-left-color:var(--gpt)} .card.code{border-left-color:var(--code)}
+  .card.input{border-left-color:var(--input)} .card.price{border-left-color:var(--price)}
+  .card.sys{border-left-color:var(--sys)}
+  .fname{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:800;font-size:16px;}
+  .src{font-size:12px;font-weight:700;padding:2px 9px;border-radius:999px;color:#fff;margin-left:8px;vertical-align:middle;}
+  .s-gpt{background:var(--gpt)} .s-code{background:var(--code)}
+  .s-input{background:var(--input)} .s-price{background:var(--price)} .s-sys{background:var(--sys)}
+  .kid{margin:8px 0 6px;font-size:15px;}
+  .why{font-size:13.5px;color:var(--dim);}
+  .why b{color:var(--ink);}
+  .ex{margin-top:8px;background:var(--soft);border-radius:9px;padding:8px 11px;font-size:13px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;}
+  pre{background:#0f172a;color:#e2e8f0;border-radius:12px;padding:16px;overflow:auto;font-size:12.5px;line-height:1.6;}
+  .k{color:#93c5fd} .s{color:#86efac} .n{color:#fca5a5} .c{color:#94a3b8}
+  footer{margin-top:40px;color:var(--dim);font-size:12.5px;text-align:center;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="badges">
+    <span class="badge">팀 여름이었다 · ⑤ Strategist</span>
+    <span class="badge">작성 이은미</span>
+    <span class="badge">v1.0 · 2026-07-08 20:45 KST</span>
+  </div>
+  <h1>🎨 Critic에게 보내는 값 — 유치원생도 아는 설명서</h1>
+  <p class="lead">Strategist(전략가)가 판단을 끝내면, 그 결과를 <b>한 상자(JSON)</b>에 담아 다음 친구 <b>Critic(반박이)</b>에게 줘요.
+  이 상자 안 <b>칸(필드) 하나하나</b>가 무슨 뜻이고, <b>어디서 왔고, 왜 이렇게 정했는지</b>를 아주 쉽게 풀어놨어요.</p>
+</header>
+
+<h2 style="border-left-color:var(--sys)">🌈 값은 어디서 올까? — 색깔로 구분</h2>
+<div class="legend">
+  <div class="lg"><span class="dot" style="background:var(--gpt)"></span><b>🤖 GPT가 만듦</b><br />생각·글을 써주는 AI 선생님</div>
+  <div class="lg"><span class="dot" style="background:var(--code)"></span><b>🧮 코드가 계산</b><br />파이썬이 숫자로 딱 계산</div>
+  <div class="lg"><span class="dot" style="background:var(--input)"></span><b>📥 입력에서 옴</b><br />앞 친구들(분석팀·스크리너)이 준 것</div>
+  <div class="lg"><span class="dot" style="background:var(--price)"></span><b>⚡ 실시간 시세</b><br />판단하는 순간 알파카에서 가져온 가격</div>
+  <div class="lg"><span class="dot" style="background:var(--sys)"></span><b>⚙️ 시스템/설정</b><br />번호표·시각 같은 자동 값</div>
+</div>
+
+<h2>📦 상자 속 칸(필드) 하나하나</h2>
+<div class="grid">
+
+  <div class="card input">
+    <span class="fname">ticker</span><span class="src s-input">📥 입력</span>
+    <p class="kid">🏷️ <b>종목 이름표.</b> "엔비디아"는 <b>NVDA</b>처럼 대문자 약어예요.</p>
+    <p class="why"><b>어디서:</b> 앞단 스크리너가 고른 종목. <b>왜 이 기준:</b> GPT가 이름을 잘못 쓸까 봐(NVDA→NVIDA) <b>코드가 강제로 확정</b>해요.</p>
+    <div class="ex">"ticker": "NVDA"</div>
+  </div>
+
+  <div class="card sys">
+    <span class="fname">cycle_id</span><span class="src s-sys">⚙️ 시스템</span>
+    <p class="kid">🔢 <b>이번 판단의 묶음 번호표.</b> "오늘 몇 번째 회의냐"를 나타내요.</p>
+    <p class="why"><b>어디서:</b> 오케스트레이터(전체 지휘자)가 줘요. <b>왜:</b> 같은 사이클의 공시·뉴스·기술 신호를 <b>한 열쇠로 묶어</b> 찾으려고요.</p>
+    <div class="ex">"cycle_id": 123</div>
+  </div>
+
+  <div class="card sys">
+    <span class="fname">inv_type</span><span class="src s-sys">⚙️ 설정</span>
+    <p class="kid">🎯 <b>투자 성향.</b> 우리는 "공격형(aggressive)" 하나만 써요.</p>
+    <p class="why"><b>어디서:</b> 설정값. <b>왜:</b> 1차는 단순하게 공격형 한 개 (기회면 빨리 움직임).</p>
+    <div class="ex">"inv_type": "aggressive"</div>
+  </div>
+
+  <div class="card gpt">
+    <span class="fname">side</span><span class="src s-gpt">🤖 GPT</span>
+    <p class="kid">🚦 <b>살까? 가만히 있을까?</b> <code>buy</code>(사자) / <code>hold</code>(가만히) 중 하나.</p>
+    <p class="why"><b>어디서:</b> GPT가 정하고, <b>코드가 안전장치</b>로 검사(확신 낮으면 hold로 강등). <b>왜:</b> 1차는 매도(sell)는 안 하고 <b>사거나·가만히</b>만. 파는 건 나중(2차).</p>
+    <div class="ex">"side": "buy"</div>
+  </div>
+
+  <div class="card gpt">
+    <span class="fname">conviction</span><span class="src s-gpt">🤖 GPT</span> <span class="src s-code">🧮 코드보정</span>
+    <p class="kid">💪 <b>얼마나 자신 있어?</b> 0~1 사이 점수(소수점 3자리). 0.850이면 "꽤 확신!"</p>
+    <p class="why"><b>어디서:</b> GPT가 매기고, 코드가 <b>교차확인(+)·시장위험(−)</b>으로 살짝 보정. <b>왜 0~1:</b> 다른 점수(호재도·중요도)랑 <b>단위를 통일</b>하려고. 소수 3자리는 <b>미세하게 순위</b>를 매기려고요.</p>
+    <div class="ex">"conviction": 0.850</div>
+  </div>
+
+  <div class="card code">
+    <span class="fname">signal_consensus</span><span class="src s-code">🧮 코드</span>
+    <p class="kid">🙋 <b>"사자"에 찬성한 친구 수.</b> 공시·뉴스·기술 <b>3명 중 몇 명</b>이 찬성했나(0~3).</p>
+    <p class="why"><b>어디서:</b> 코드가 표를 세요. <b>왜 3명:</b> 매크로(시장 날씨)는 모든 종목에 똑같아서 <b>표에서 뺐어요</b>(대신 감점으로만).</p>
+    <div class="ex">"signal_consensus": 3</div>
+  </div>
+
+  <div class="card gpt">
+    <span class="fname">summary</span><span class="src s-gpt">🤖 GPT</span>
+    <p class="kid">📝 <b>한 줄 요약.</b> "왜 이 결정?"을 짧게.</p>
+    <p class="why"><b>어디서:</b> GPT가 써요. <b>왜:</b> Critic이 빠르게 훑어보라고.</p>
+    <div class="ex">"summary": "3개 신호가 매수 방향"</div>
+  </div>
+
+  <div class="card gpt">
+    <span class="fname">bull_case</span><span class="src s-gpt">🤖 GPT</span>
+    <p class="kid">🐂 <b>살 만한 좋은 이유.</b> "이래서 좋아!"</p>
+    <p class="why"><b>어디서:</b> GPT. <b>왜:</b> Critic을 설득하려면 <b>근거</b>가 있어야죠.</p>
+    <div class="ex">"bull_case": "실적 서프라이즈 + 데이터센터 매출 급증"</div>
+  </div>
+
+  <div class="card gpt">
+    <span class="fname">key_risk</span><span class="src s-gpt">🤖 GPT</span>
+    <p class="kid">⚠️ <b>제일 걱정되는 것 하나.</b> "근데 이게 위험해."</p>
+    <p class="why"><b>어디서:</b> GPT. <b>왜:</b> 위험을 <b>스스로 인정</b>하면 Critic이 "얘 솔직하네" 하고 더 믿어줘요.</p>
+    <div class="ex">"key_risk": "기대가 너무 높아 실적 부진 시 급락 위험"</div>
+  </div>
+
+  <div class="card gpt">
+    <span class="fname">risk_rebuttal</span><span class="src s-gpt">🤖 GPT</span>
+    <p class="kid">🛡️ <b>그 걱정에 대한 대답.</b> "그래도 괜찮아, 왜냐면…"</p>
+    <p class="why"><b>어디서:</b> GPT(+코드 태그). <b>왜:</b> 위험을 <b>미리 방어</b>하면 Critic 반박을 이기기 쉬워요.</p>
+    <div class="ex">"risk_rebuttal": "최근 가이던스와 기술 상승세가 뒷받침"</div>
+  </div>
+
+  <div class="card gpt">
+    <span class="fname">counter_scenarios</span><span class="src s-gpt">🤖 GPT</span>
+    <p class="kid">🎯 <b>틀렸을 때 대응책.</b> "실패하면 이렇게 할게."</p>
+    <p class="why"><b>어디서:</b> GPT. <b>왜:</b> 대응책까지 있으면 <b>준비된 판단</b>으로 보여요.</p>
+    <div class="ex">"counter_scenarios": ["실적 부진 시 -10% 손절"]</div>
+  </div>
+
+  <div class="card code">
+    <span class="fname">evidence</span><span class="src s-code">🧮 코드</span>
+    <p class="kid">🔍 <b>판단 근거가 된 숫자 모음.</b> "왜 그렇게 정했는지 증거."</p>
+    <p class="why"><b>어디서:</b> 코드 전처리 결과. <b>왜:</b> 말이 아니라 <b>숫자로 투명하게</b> 보여주려고.</p>
+    <div class="ex">"evidence": { "buy_votes": 3, "cross_confirm_bonus": 0.02, "macro_penalty": 0, "hard_block": 0 }</div>
+  </div>
+
+  <div class="card code">
+    <span class="fname">sizing_hint</span><span class="src s-code">🧮 코드</span>
+    <p class="kid">💡 <b>"얼마나 살까?" 힌트.</b> 근데 <b>진짜 결정은 PM 형</b>이 해요.</p>
+    <p class="why"><b>어디서:</b> 코드가 확신도로 계산. <b>왜:</b> Strategist는 <b>순위·제안</b>만, 실제 금액은 잔고 아는 PM 몫이라서요.</p>
+    <div class="ex">"sizing_hint": { "suggested_weight": 0.0425, "note": "PM decides final size by cash and risk" }</div>
+  </div>
+
+  <div class="card sys">
+    <span class="fname">persona_notes</span><span class="src s-sys">⚙️ 2차</span>
+    <p class="kid">🎩 <b>투자 거장 관점.</b> 지금은 비어있어요(2차에 추가).</p>
+    <p class="why"><b>어디서:</b> 아직 없음. <b>왜:</b> 1차는 단순하게, 거장 페르소나는 나중에.</p>
+    <div class="ex">"persona_notes": null</div>
+  </div>
+
+  <div class="card price">
+    <span class="fname">current_price · day_high · day_low</span><span class="src s-price">⚡ 시세</span>
+    <p class="kid">📸 <b>판단하는 그 순간의 주식 가격 사진.</b> 지금값·오늘최고·오늘최저.</p>
+    <p class="why"><b>어디서:</b> 알파카에서 실시간(무료). <b>왜:</b> 시세는 몇 초만 지나도 낡아서, <b>판단 순간 값</b>을 이 칸에 박아둬요.</p>
+    <div class="ex">"current_price": 196.97, "day_high": 198.39, "day_low": 191.15</div>
+  </div>
+
+  <div class="card price">
+    <span class="fname">volume · turnover · high_52w · low_52w</span><span class="src s-price">⚡ 시세</span>
+    <p class="kid">📊 <b>거래량·거래대금·52주 최고/최저.</b> 얼마나 사고팔렸나, 1년 중 어디쯤인가.</p>
+    <p class="why"><b>어디서:</b> 알파카 실시간. <b>왜:</b> 나중에 회고할 때 "그때 얼마였지?"를 정확히 남기려고.</p>
+    <div class="ex">"volume": 4767383, "high_52w": 140, "low_52w": 88</div>
+  </div>
+
+  <div class="card sys">
+    <span class="fname">created_at</span><span class="src s-sys">⚙️ 시스템</span>
+    <p class="kid">🕒 <b>이 판단을 저장한 시각.</b> "언제 정했나" 도장.</p>
+    <p class="why"><b>어디서:</b> 코드가 저장할 때 자동. <b>왜:</b> 순서·시간을 기록해 나중에 되돌아보려고.</p>
+    <div class="ex">"created_at": "2026-07-08T11:30:00Z"</div>
+  </div>
+
+</div>
+
+<h2>🎁 전체 예시 — NVDA 상자 하나 (JSON)</h2>
+<pre>{
+  <span class="k">"cycle_id"</span>: <span class="n">123</span>,              <span class="c">// ⚙️ 판단 묶음 번호</span>
+  <span class="k">"ticker"</span>: <span class="s">"NVDA"</span>,            <span class="c">// 📥 종목 이름표(코드가 확정)</span>
+  <span class="k">"inv_type"</span>: <span class="s">"aggressive"</span>,   <span class="c">// ⚙️ 공격형</span>
+  <span class="k">"side"</span>: <span class="s">"buy"</span>,               <span class="c">// 🤖 사자!</span>
+  <span class="k">"conviction"</span>: <span class="n">0.850</span>,        <span class="c">// 🤖+🧮 확신 0~1 (소수3자리)</span>
+  <span class="k">"signal_consensus"</span>: <span class="n">3</span>,       <span class="c">// 🧮 찬성 3/3</span>
+  <span class="k">"summary"</span>: <span class="s">"3개 신호가 매수 방향"</span>,
+  <span class="k">"bull_case"</span>: <span class="s">"실적 서프라이즈 + 데이터센터 매출 급증"</span>,
+  <span class="k">"key_risk"</span>: <span class="s">"기대가 과다 → 실적 부진 시 급락"</span>,
+  <span class="k">"risk_rebuttal"</span>: <span class="s">"가이던스·기술 상승세가 뒷받침"</span>,
+  <span class="k">"counter_scenarios"</span>: [<span class="s">"실적 부진 시 -10% 손절"</span>],
+  <span class="k">"evidence"</span>: { <span class="k">"buy_votes"</span>:<span class="n">3</span>, <span class="k">"cross_confirm_bonus"</span>:<span class="n">0.02</span>, <span class="k">"macro_penalty"</span>:<span class="n">0</span>, <span class="k">"hard_block"</span>:<span class="n">0</span> },  <span class="c">// 🧮 증거 숫자</span>
+  <span class="k">"sizing_hint"</span>: { <span class="k">"suggested_weight"</span>:<span class="n">0.0425</span>, <span class="k">"note"</span>:<span class="s">"PM decides final size by cash and risk"</span> },
+  <span class="k">"persona_notes"</span>: <span class="n">null</span>,       <span class="c">// ⚙️ 2차</span>
+  <span class="k">"current_price"</span>: <span class="n">196.97</span>,     <span class="c">// ⚡ 판단 순간 시세</span>
+  <span class="k">"day_high"</span>: <span class="n">198.39</span>, <span class="k">"day_low"</span>: <span class="n">191.15</span>,
+  <span class="k">"volume"</span>: <span class="n">4767383</span>, <span class="k">"turnover"</span>: <span class="n">929608229</span>,
+  <span class="k">"high_52w"</span>: <span class="n">140</span>, <span class="k">"low_52w"</span>: <span class="n">88</span>,
+  <span class="k">"created_at"</span>: <span class="s">"2026-07-08T11:30:00Z"</span>  <span class="c">// ⚙️ 저장 시각</span>
+}</pre>
+
+<h2>🧠 딱 3줄 정리</h2>
+<div class="card">
+  <p class="kid">1. <b>GPT가 만든 것</b> = 판단(side)·확신(conviction)·글(summary·bull_case·key_risk·rebuttal·대응책) 🤖</p>
+  <p class="kid">2. <b>코드가 만든 것</b> = 표 개수(consensus)·증거(evidence)·크기힌트(sizing) 🧮</p>
+  <p class="kid">3. <b>가져온 것</b> = 종목(ticker) 📥 · 실시간 시세(가격·거래량) ⚡ · 번호·시각 ⚙️</p>
+</div>
+
+<footer>
+  Quantinue — Strategist · Critic Payload 설명서 · 작성 이은미 · v1.0 · 2026-07-08 20:45 KST
+</footer>
+
+</div>
+</body>
+</html>
