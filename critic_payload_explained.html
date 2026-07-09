@@ -56,7 +56,7 @@
   <div class="badges">
     <span class="badge">팀 여름이었다 · ⑤ Strategist</span>
     <span class="badge">작성 이은미</span>
-    <span class="badge">v1.3 · 2026-07-09 10:22 KST</span>
+    <span class="badge">v1.4 · 2026-07-09 10:30 KST</span>
   </div>
   <h1>🎨 Critic에게 보내는 값 — 유치원생도 아는 설명서</h1>
   <p class="lead">Strategist(전략가)가 판단을 끝내면, 그 결과를 <b>한 상자(JSON)</b>에 담아 다음 친구 <b>Critic(반박이)</b>에게 줘요.
@@ -161,6 +161,39 @@
   <p class="why"><b>관계:</b> 읽는 상자 5개는 <code>ticker</code>(종목)+<code>cycle_id</code>(회의번호)로 "같은 종목·같은 회의" 신호를 찾아 읽어요. 판단 후 이 상자에 1줄 저장(append).</p>
 </div>
 
+<h2 style="border-left-color:var(--gpt)">🧭 결정 프로세스 — 이 값들이 어떻게 정해질까?</h2>
+<p class="lead">읽기 → 하드블록 → 표 세기 → 합의 → 보너스/감점 → GPT 판단 → 안전장치 → 저장. <b>각 단계에서 값이 하나씩 정해져요.</b></p>
+
+<h3 style="margin:14px 0 6px;font-size:15px;">단계별 흐름 (NVDA 예시)</h3>
+<table>
+  <thead><tr><th>단계</th><th>하는 일</th><th>NVDA 예시</th></tr></thead>
+  <tbody>
+    <tr><td>1. 읽기</td><td>공시·뉴스·기술·매크로·과거 5개 SELECT</td><td>—</td></tr>
+    <tr><td>2. 하드블록</td><td>hard_block=1이면 즉시 보류 (GPT 스킵)</td><td>0 → 통과</td></tr>
+    <tr><td>3. 표 세기</td><td>문턱 통과하면 +1 (매크로 표 제외)</td><td>공시 0.85✓ · 뉴스 0.80✓ · 기술 0.66✓ = <b>3표</b></td></tr>
+    <tr><td>4. 합의</td><td>3표 ≥ 2(필요) → 잠정 매수</td><td>buy</td></tr>
+    <tr><td>5. 교차확인 보너스</td><td>confirmed 비율 × 0.03</td><td>+0.02</td></tr>
+    <tr><td>6. 매크로 감점</td><td>risk_off면 위험도만큼 (risk_on → 0)</td><td>0</td></tr>
+    <tr><td>7. GPT 판단</td><td>요약 보고 side·conviction 채점, 근거 글 생성</td><td>conviction 0.83</td></tr>
+    <tr><td>8. 안전장치</td><td>+0.02 −0 = <b>0.85</b> · min 0.6 넘음 → 매수 유지</td><td>0.85</td></tr>
+    <tr><td>9~10. 조립·저장</td><td>결과 1줄 + 매수면 Critic에</td><td>✅</td></tr>
+  </tbody>
+</table>
+
+<h3 style="margin:16px 0 6px;font-size:15px;">각 값이 "어느 판단에서" 나왔나</h3>
+<table>
+  <thead><tr><th>값</th><th>어떤 판단으로</th><th>NVDA</th></tr></thead>
+  <tbody>
+    <tr><td>signal_consensus</td><td>3단계 표 세기 (공시+뉴스+기술)</td><td>3</td></tr>
+    <tr><td>side</td><td>4단계 합의 + 7 GPT + 8 안전장치</td><td>buy</td></tr>
+    <tr><td>conviction</td><td>7 GPT 채점 + 8 보정(+0.02 −0)</td><td>0.85</td></tr>
+    <tr><td>evidence.buy_votes</td><td>3단계 표 세기 결과</td><td>3</td></tr>
+    <tr><td>evidence.hard_block</td><td>2단계 공시·뉴스 필드 확인</td><td>0</td></tr>
+    <tr><td>evidence.cross_confirm_bonus</td><td>5단계 confirmed × 0.03</td><td>0.02</td></tr>
+    <tr><td>evidence.macro_penalty</td><td>6단계 (risk_on → 감점 0)</td><td>0</td></tr>
+  </tbody>
+</table>
+
 <h2 style="border-left-color:var(--code)">📊 한눈 정리 — "저장하는 값 = Critic에 주는 값" (표)</h2>
 <p class="lead"><b>내가 저장하는 값</b>과 <b>Critic에 보내는 값</b>은 <b>같은 것</b>이에요! (tb_strategist_signals 한 행) — 따로 두 개 만드는 게 아니라, 판단 결과 1줄을 <b>저장하고 + 매수면 그 줄을 Critic에</b> 넘겨요. <b>읽는 값(공시·뉴스 등)은 입력</b>이라 Critic에 안 가요.</p>
 
@@ -184,7 +217,6 @@
   <tbody>
     <tr><td>side · conviction · signal_consensus</td><td>✅</td><td>✅</td><td>🎯 판단 핵심</td></tr>
     <tr><td>summary · bull_case · key_risk · risk_rebuttal · counter_scenarios · evidence</td><td>✅</td><td>✅</td><td>🗣️ Critic 설득용</td></tr>
-    <tr><td>sizing_hint</td><td>✅</td><td>✅</td><td>💰 PM 힌트</td></tr>
     <tr><td>current_price · day_high/low · volume · turnover · high_52w/low_52w</td><td>✅</td><td>✅</td><td>📸 기록·회고용</td></tr>
     <tr><td>cycle_id · ticker · inv_type · created_at</td><td>✅</td><td>✅</td><td>⚙️ 식별·시각</td></tr>
   </tbody>
@@ -272,31 +304,32 @@
   </div>
 
   <div class="card code">
-    <span class="fname">evidence</span><span class="src s-code">🧮 코드</span>
+    <span class="fname">evidence — 근거 숫자 (풀어보기)</span><span class="src s-code">🧮 코드</span>
     <p class="kid">🔍 <b>판단 근거가 된 숫자 모음.</b> "왜 그렇게 정했는지 증거."</p>
-    <p class="why"><b>어디서:</b> 코드 전처리 결과. <b>왜:</b> 말이 아니라 <b>숫자로 투명하게</b> 보여주려고.</p>
-    <div class="ex">"evidence": { "buy_votes": 3, "cross_confirm_bonus": 0.02, "macro_penalty": 0, "hard_block": 0 }</div>
-  </div>
-
-  <div class="card code">
-    <span class="fname">sizing_hint</span><span class="src s-code">🧮 코드</span>
-    <p class="kid">💡 <b>"얼마나 살까?" 힌트.</b> 근데 <b>진짜 결정은 PM 형</b>이 해요.</p>
-    <p class="why"><b>어디서:</b> 코드가 확신도로 계산. <b>왜:</b> Strategist는 <b>순위·제안</b>만, 실제 금액은 잔고 아는 PM 몫이라서요.</p>
-    <div class="ex">"sizing_hint": { "suggested_weight": 0.03, "conviction": 0.85, "max_weight_cap": 0.05, "stop_loss_hint": -0.05, "note": "최종 크기는 PM이 결정" }</div>
-  </div>
-
-  <div class="card price">
-    <span class="fname">current_price · day_high · day_low</span><span class="src s-price">⚡ 시세</span>
-    <p class="kid">📸 <b>판단하는 그 순간의 주식 가격 사진.</b> 지금값·오늘최고·오늘최저.</p>
-    <p class="why"><b>어디서:</b> 알파카에서 실시간(무료). <b>왜:</b> 시세는 몇 초만 지나도 낡아서, <b>판단 순간 값</b>을 이 칸에 박아둬요.</p>
-    <div class="ex">"current_price": 196.97, "day_high": 198.39, "day_low": 191.15</div>
+    <table>
+      <thead><tr><th>필드</th><th>뜻</th><th>어떤 판단으로</th><th>NVDA</th></tr></thead>
+      <tbody>
+        <tr><td>buy_votes</td><td>매수 찬성 수 0~3</td><td>공시·뉴스·기술 표 세기</td><td>3</td></tr>
+        <tr><td>cross_confirm_bonus</td><td>교차확인 보너스</td><td>confirmed × 0.03 <span style="color:var(--price)">⚠️재설계</span></td><td>0.02</td></tr>
+        <tr><td>hard_block</td><td>위험 즉시차단 0/1</td><td>공시·뉴스 hard_block 확인</td><td>0</td></tr>
+        <tr><td>macro_penalty</td><td>매크로 감점</td><td>risk_off면 위험도만큼 (risk_on→0)</td><td>0</td></tr>
+      </tbody>
+    </table>
   </div>
 
   <div class="card price">
-    <span class="fname">volume · turnover · high_52w · low_52w</span><span class="src s-price">⚡ 시세</span>
-    <p class="kid">📊 <b>거래량·거래대금·52주 최고/최저.</b> 얼마나 사고팔렸나, 1년 중 어디쯤인가.</p>
-    <p class="why"><b>어디서:</b> 알파카 실시간. <b>왜:</b> 나중에 회고할 때 "그때 얼마였지?"를 정확히 남기려고.</p>
-    <div class="ex">"volume": 4767383, "high_52w": 140, "low_52w": 88</div>
+    <span class="fname">실시간 시세 7개 (풀어보기)</span><span class="src s-price">⚡ 시세</span>
+    <p class="kid">📸 <b>판단 순간의 시세 사진.</b> 몇 초 뒤면 낡아서 그 순간 값을 박아둬요.</p>
+    <table>
+      <thead><tr><th>필드</th><th>뜻</th><th>NVDA</th></tr></thead>
+      <tbody>
+        <tr><td>current_price</td><td>판단 순간 현재가 $</td><td>196.97</td></tr>
+        <tr><td>day_high / day_low</td><td>당일 최고 / 최저 $</td><td>198.39 / 191.15</td></tr>
+        <tr><td>volume</td><td>당일 거래량(주 수)</td><td>4,767,383</td></tr>
+        <tr><td>turnover</td><td>당일 거래대금 $</td><td>929,608,229</td></tr>
+        <tr><td>high_52w / low_52w</td><td>52주 최고 / 최저 $</td><td>140 / 88</td></tr>
+      </tbody>
+    </table>
   </div>
 
   <div class="card sys">
@@ -330,16 +363,7 @@
   <span class="c">// ─── ④ 신뢰 근거 (숫자 증거) ───</span>
   <span class="k">"evidence"</span>: { <span class="k">"buy_votes"</span>:<span class="n">3</span>, <span class="k">"cross_confirm_bonus"</span>:<span class="n">0.02</span>, <span class="k">"hard_block"</span>:<span class="n">0</span>, <span class="k">"macro_penalty"</span>:<span class="n">0</span> },
 
-  <span class="c">// ─── ⑤ PM용 크기 힌트 (제안일 뿐, 최종은 PM) ───</span>
-  <span class="k">"sizing_hint"</span>: {
-    <span class="k">"suggested_weight"</span>: <span class="n">0.03</span>,    <span class="c">// 제안 비중 3% (PM이 참고만)</span>
-    <span class="k">"conviction"</span>: <span class="n">0.85</span>,          <span class="c">// 이 확신에 근거</span>
-    <span class="k">"max_weight_cap"</span>: <span class="n">0.05</span>,      <span class="c">// 종목당 상한 5% 가이드</span>
-    <span class="k">"stop_loss_hint"</span>: <span class="n">-0.05</span>,     <span class="c">// 손절 제안 -5%</span>
-    <span class="k">"note"</span>: <span class="s">"최종 크기는 PM이 결정. 이건 제안값."</span>
-  },
-
-  <span class="c">// ─── ⑥ 실시간 시세 (알파카 · 판단 순간) ───</span>
+  <span class="c">// ─── ⑤ 실시간 시세 (알파카 · 판단 순간) ───</span>
   <span class="k">"current_price"</span>: <span class="n">196.97</span>,
   <span class="k">"day_high"</span>: <span class="n">198.39</span>, <span class="k">"day_low"</span>: <span class="n">191.15</span>,
   <span class="k">"volume"</span>: <span class="n">4767383</span>, <span class="k">"turnover"</span>: <span class="n">929608229</span>,
@@ -358,7 +382,7 @@
 </div>
 
 <footer>
-  Quantinue — Strategist · ERD + Critic Payload 설명서 · 작성 이은미 · v1.3 · 2026-07-09 10:22 KST
+  Quantinue — Strategist · ERD + 결정프로세스 + Critic Payload 설명서 · 작성 이은미 · v1.4 · 2026-07-09 10:30 KST
 </footer>
 
 </div>
