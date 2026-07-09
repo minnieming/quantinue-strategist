@@ -41,6 +41,10 @@
   .ex{margin-top:8px;background:var(--soft);border-radius:9px;padding:8px 11px;font-size:13px;
     font-family:ui-monospace,SFMono-Regular,Menlo,monospace;}
   pre{background:#0f172a;color:#e2e8f0;border-radius:12px;padding:16px;overflow:auto;font-size:12.5px;line-height:1.6;}
+  table{width:100%;border-collapse:collapse;margin:10px 0 6px;font-size:13.5px;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+  th,td{border:1px solid var(--line);padding:8px 11px;text-align:left;vertical-align:top;}
+  th{background:var(--soft);font-weight:800;font-size:13px;}
+  .mine-row{background:#dcfce7;font-weight:700;}
   .k{color:#93c5fd} .s{color:#86efac} .n{color:#fca5a5} .c{color:#94a3b8}
   footer{margin-top:40px;color:var(--dim);font-size:12.5px;text-align:center;}
 </style>
@@ -52,7 +56,7 @@
   <div class="badges">
     <span class="badge">팀 여름이었다 · ⑤ Strategist</span>
     <span class="badge">작성 이은미</span>
-    <span class="badge">v1.1 · 2026-07-09 09:42 KST</span>
+    <span class="badge">v1.2 · 2026-07-09 09:55 KST</span>
   </div>
   <h1>🎨 Critic에게 보내는 값 — 유치원생도 아는 설명서</h1>
   <p class="lead">Strategist(전략가)가 판단을 끝내면, 그 결과를 <b>한 상자(JSON)</b>에 담아 다음 친구 <b>Critic(반박이)</b>에게 줘요.
@@ -79,32 +83,74 @@
   <div style="background:#dcfce7;border:1px solid #bbf7d0;border-radius:12px;padding:12px 16px;text-align:center;font-size:13.5px;">⭐ <b>쓰는 상자 1개</b><br /><span style="color:var(--dim)">내 판단 결과</span></div>
 </div>
 
-<h3 style="margin:18px 0 8px;font-size:16px;">📥 내가 읽는 상자 5개 (다른 팀이 채워줌)</h3>
+<h3 style="margin:18px 0 8px;font-size:16px;">📥 내가 읽는 상자 5개 (다른 팀이 채워줌) — 예시는 모두 NVDA</h3>
 <div class="grid">
   <div class="card input">
     <span class="fname">tb_disclosure</span> <span style="color:var(--dim)">공시 · 정보분석팀(정창욱)</span>
-    <p class="kid">📄 <b>회사 공식 발표.</b> 실적·인수·상장폐지 같은 공식 문서.</p>
-    <p class="why"><b>내가 읽는 칸:</b> sentiment_score(호재/악재 강도) · importance(중요도) · hard_block(위험차단) · event_type · reason</p>
+    <p class="kid">📄 <b>회사 공식 발표.</b> 실적·인수·상장폐지 같은 SEC 공식 문서예요.</p>
+    <table>
+      <thead><tr><th>칸</th><th>뜻 (유치원생)</th><th>NVDA 예시</th></tr></thead>
+      <tbody>
+        <tr><td>sentiment_score</td><td>호재/악재 강도 (0=악재·0.5=중립·1=호재)</td><td>0.85</td></tr>
+        <tr><td>importance</td><td>이 공시가 얼마나 큰일인가 0~1</td><td>0.70</td></tr>
+        <tr><td>hard_block</td><td>위험해서 즉시 차단? 0/1</td><td>0</td></tr>
+        <tr><td>event_type</td><td>사건 종류</td><td>"earnings"(실적)</td></tr>
+        <tr><td>reason</td><td>근거 한 줄</td><td>"분기 실적 서프라이즈"</td></tr>
+      </tbody>
+    </table>
   </div>
   <div class="card input">
     <span class="fname">tb_news</span> <span style="color:var(--dim)">뉴스 · 정보분석팀(정창욱)</span>
-    <p class="kid">📰 <b>언론 기사.</b> "엔비디아 실적 대박" 같은 뉴스들을 모아 대표 1개로 요약.</p>
-    <p class="why"><b>내가 읽는 칸:</b> sentiment_score · grade_score(출처등급) · source_trust(신뢰) · top_evidence(근거기사) · hard_block <br /><span style="color:var(--price)">⚠️ confirmed_score · cross_source_confirmed는 정보분석팀이 삭제 → 내 코드도 재설계 예정</span></p>
+    <p class="kid">📰 <b>언론 기사.</b> "엔비디아 실적 대박" 같은 뉴스들을 모아 <b>대표 1개</b>로 요약해요.</p>
+    <table>
+      <thead><tr><th>칸</th><th>뜻 (유치원생)</th><th>NVDA 예시</th></tr></thead>
+      <tbody>
+        <tr><td>sentiment_score</td><td>호재/악재 강도 0~1</td><td>0.80</td></tr>
+        <tr><td>grade_score</td><td>출처 등급 (로이터=1.0·소셜=0.6·차단=0)</td><td>0.90</td></tr>
+        <tr><td>source_trust</td><td>LLM이 내용 보고 매긴 신뢰 0~1</td><td>0.85</td></tr>
+        <tr><td>top_evidence</td><td>근거가 된 기사 헤드라인들</td><td>["로이터: 데이터센터 매출 급증"]</td></tr>
+        <tr><td>hard_block</td><td>위험 즉시차단 0/1</td><td>0</td></tr>
+      </tbody>
+    </table>
+    <p class="why"><span style="color:var(--price)">⚠️ confirmed_score · cross_source_confirmed는 정보분석팀이 삭제 → 내 코드도 재설계 예정</span></p>
   </div>
   <div class="card input">
     <span class="fname">tb_technical</span> <span style="color:var(--dim)">기술 · 김지현</span>
-    <p class="kid">📈 <b>차트·추세.</b> 오르는 중인지, AI가 본 상승확률.</p>
-    <p class="why"><b>내가 읽는 칸:</b> trend(추세) · ml_prob_up(상승확률) · rsi · macd</p>
+    <p class="kid">📈 <b>차트·추세.</b> 오르는 중인지, AI가 본 상승확률이에요.</p>
+    <table>
+      <thead><tr><th>칸</th><th>뜻 (유치원생)</th><th>NVDA 예시</th></tr></thead>
+      <tbody>
+        <tr><td>trend</td><td>추세 방향</td><td>"up"(상승)</td></tr>
+        <tr><td>ml_prob_up</td><td>AI가 본 오를 확률 0~1</td><td>0.66</td></tr>
+        <tr><td>rsi</td><td>과열(70↑)·과매도(30↓) 지표</td><td>58</td></tr>
+        <tr><td>macd</td><td>추세 신호 (양수=상승)</td><td>양수</td></tr>
+      </tbody>
+    </table>
   </div>
   <div class="card input">
     <span class="fname">tb_macro</span> <span style="color:var(--dim)">매크로 · 김지현</span>
-    <p class="kid">🌐 <b>시장 전체 날씨.</b> 맑음(risk_on)/태풍(risk_off). 종목 상관없이 공통이에요.</p>
-    <p class="why"><b>내가 읽는 칸:</b> regime(날씨) · risk_score(위험도 0~100) · reason</p>
+    <p class="kid">🌐 <b>시장 전체 날씨.</b> 맑음/태풍. 종목 상관없이 모두 공통이에요.</p>
+    <table>
+      <thead><tr><th>칸</th><th>뜻 (유치원생)</th><th>예시</th></tr></thead>
+      <tbody>
+        <tr><td>regime</td><td>시장 날씨</td><td>"risk_on"(맑음)</td></tr>
+        <tr><td>risk_score</td><td>위험도 (★여기만 0~100)</td><td>20</td></tr>
+        <tr><td>reason</td><td>근거</td><td>"지수 상승세"</td></tr>
+      </tbody>
+    </table>
   </div>
   <div class="card input">
     <span class="fname">tb_memory_entries</span> <span style="color:var(--dim)">과거기록 · 문성혁</span>
-    <p class="kid">🧠 <b>예전 판단·교훈.</b> "이 종목 저번에 이랬지" 같은 기억.</p>
-    <p class="why"><b>내가 읽는 칸:</b> side · conviction · outcome(결과) · lesson(교훈) — 종목별 최근 5개</p>
+    <p class="kid">🧠 <b>예전 판단·교훈.</b> "이 종목 저번엔 이랬지" 같은 기억 (종목별 최근 5개).</p>
+    <table>
+      <thead><tr><th>칸</th><th>뜻 (유치원생)</th><th>NVDA 예시</th></tr></thead>
+      <tbody>
+        <tr><td>side</td><td>예전 판단</td><td>"buy"</td></tr>
+        <tr><td>conviction</td><td>예전 확신 0~1</td><td>0.72</td></tr>
+        <tr><td>outcome</td><td>결과 (수익률 등)</td><td>+0.08</td></tr>
+        <tr><td>lesson</td><td>교훈 한 줄</td><td>"실적 후 추격 주의"</td></tr>
+      </tbody>
+    </table>
   </div>
 </div>
 
@@ -115,7 +161,37 @@
   <p class="why"><b>관계:</b> 읽는 상자 5개는 <code>ticker</code>(종목)+<code>cycle_id</code>(회의번호)로 "같은 종목·같은 회의" 신호를 찾아 읽어요. 판단 후 이 상자에 1줄 저장(append).</p>
 </div>
 
-<h2>📦 내 결과 상자(tb_strategist_signals) 속 칸 = Critic에 보내는 값</h2>
+<h2 style="border-left-color:var(--code)">📊 한눈 정리 — "저장하는 값 = Critic에 주는 값" (표)</h2>
+<p class="lead"><b>내가 저장하는 값</b>과 <b>Critic에 보내는 값</b>은 <b>같은 것</b>이에요! (tb_strategist_signals 한 행) — 따로 두 개 만드는 게 아니라, 판단 결과 1줄을 <b>저장하고 + 매수면 그 줄을 Critic에</b> 넘겨요. <b>읽는 값(공시·뉴스 등)은 입력</b>이라 Critic에 안 가요.</p>
+
+<h3 style="margin:16px 0 6px;font-size:15px;">표 A — 테이블 수준 (내 ERD)</h3>
+<table>
+  <thead><tr><th>테이블</th><th>내 역할</th><th>Critic에 가나?</th><th>소유</th></tr></thead>
+  <tbody>
+    <tr><td>tb_disclosure (공시)</td><td>📥 읽기(입력)</td><td>❌</td><td>정창욱</td></tr>
+    <tr><td>tb_news (뉴스)</td><td>📥 읽기(입력)</td><td>❌</td><td>정창욱</td></tr>
+    <tr><td>tb_technical (기술)</td><td>📥 읽기(입력)</td><td>❌</td><td>김지현</td></tr>
+    <tr><td>tb_macro (매크로)</td><td>📥 읽기(입력)</td><td>❌</td><td>김지현</td></tr>
+    <tr><td>tb_memory_entries (과거)</td><td>📥 읽기(입력)</td><td>❌</td><td>문성혁</td></tr>
+    <tr class="mine-row"><td>tb_strategist_signals</td><td>✍️ 쓰기(내 결과)</td><td>✅ 매수면 이 행</td><td>나</td></tr>
+  </tbody>
+</table>
+<p class="why">→ <b>읽는 5개 = 입력</b>(Critic 안 감) · <b>쓰는 1개 = 저장 = Critic에 보내는 값</b> (같은 것!)</p>
+
+<h3 style="margin:18px 0 6px;font-size:15px;">표 B — 내 결과 상자 칸별 (전부 저장 O · 매수면 전부 Critic O · 용도만 다름)</h3>
+<table>
+  <thead><tr><th>칸(컬럼)</th><th>DB저장</th><th>Critic전달</th><th>주 용도</th></tr></thead>
+  <tbody>
+    <tr><td>side · conviction · signal_consensus</td><td>✅</td><td>✅</td><td>🎯 판단 핵심</td></tr>
+    <tr><td>summary · bull_case · key_risk · risk_rebuttal · counter_scenarios · evidence</td><td>✅</td><td>✅</td><td>🗣️ Critic 설득용</td></tr>
+    <tr><td>sizing_hint</td><td>✅</td><td>✅</td><td>💰 PM 힌트</td></tr>
+    <tr><td>current_price · day_high/low · volume · turnover · high_52w/low_52w</td><td>✅</td><td>✅</td><td>📸 기록·회고용</td></tr>
+    <tr><td>cycle_id · ticker · inv_type · persona_notes · created_at</td><td>✅</td><td>✅</td><td>⚙️ 식별·시각</td></tr>
+  </tbody>
+</table>
+<p class="why">→ <b>저장값과 Critic값은 완전히 같아요.</b> 다만 Critic은 주로 <b>🗣️ 설득용</b> 칸을 보고 반박하고, <b>📸 기록용</b> 칸은 나중에 회고할 때 더 쓰여요.</p>
+
+<h2>📦 내 결과 상자(tb_strategist_signals) 속 칸 하나하나 (자세히)</h2>
 <div class="grid">
 
   <div class="card input">
@@ -270,7 +346,7 @@
 </div>
 
 <footer>
-  Quantinue — Strategist · ERD + Critic Payload 설명서 · 작성 이은미 · v1.1 · 2026-07-09 09:42 KST
+  Quantinue — Strategist · ERD + Critic Payload 설명서 · 작성 이은미 · v1.2 · 2026-07-09 09:55 KST
 </footer>
 
 </div>
